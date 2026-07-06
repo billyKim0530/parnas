@@ -80,8 +80,14 @@
   .map-addr:focus-within{border-color:var(--brass-line)}
   .map-addr input{width:100%;background:none;border:none;outline:none;color:var(--text);font-family:var(--sans);font-size:14px;padding:10px 0}
   .map-addr .suf{font-size:11px;color:var(--faint);padding-left:8px;white-space:nowrap}
-  .map-frame{border:1px solid var(--line2);border-radius:12px;overflow:hidden;background:var(--surface2);height:340px}
-  .map-frame iframe{width:100%;height:100%;border:0;display:block}
+  .map-frame{border:1px solid var(--line2);border-radius:12px;overflow:hidden;background:var(--surface2);height:360px;position:relative}
+  .map-split{display:flex;gap:8px;width:100%;height:100%;padding:8px}
+  .map-pane{position:relative;flex:1;min-width:0;border-radius:10px;overflow:hidden;background:var(--surface3)}
+  .map-pane>div{width:100%;height:100%}
+  .pane-lab{position:absolute;top:8px;left:8px;z-index:5;background:rgba(16,20,28,.82);color:#fff;
+    font-size:11px;font-weight:600;letter-spacing:.02em;padding:3px 10px;border-radius:6px;pointer-events:none}
+  .map-frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block}
+  @media(max-width:640px){.map-split{flex-direction:column}.map-frame{height:520px}}
   .map-note{font-size:11px;color:var(--faint);margin-top:10px;line-height:1.6}
   .map-note b{color:var(--muted)}
   .mult-row{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:11px}
@@ -157,7 +163,13 @@
         <button class="chip solid" id="goNaver">네이버 지도에서 보기 ↗</button>
         <button class="chip" id="goDdangya">땅야 공시지가 ↗</button>
       </div>
-      <div class="map-frame"><div id="naverMap" style="width:100%;height:100%;display:none"></div><iframe id="mapFrame" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div>
+      <div class="map-frame">
+        <div class="map-split" id="mapSplit">
+          <div class="map-pane"><span class="pane-lab">지도</span><div id="naverMap"></div></div>
+          <div class="map-pane"><span class="pane-lab">로드뷰</span><div id="naverPano"></div></div>
+        </div>
+        <iframe id="mapFrame" loading="lazy" referrerpolicy="no-referrer-when-downgrade" style="display:none"></iframe>
+      </div>
       <div class="map-note" id="mapNote"></div>
     </div>
 
@@ -433,7 +445,7 @@ updateUnitLabels();
 const DEFAULT_ADDR="서울 강남구 테헤란로 521";
 const NAVER_KEY="5gtzgwx45u";  // 고정된 네이버 지도 Client ID (ncpKeyId)
 function curAddr(){return ($('addr').value||DEFAULT_ADDR).trim();}
-let naverReady=false, naverMap=null, naverMarker=null, naverKeyUsed=null;
+let naverReady=false, naverMap=null, naverMarker=null, naverPano=null, naverKeyUsed=null;
 
 function loadNaverSdk(key){
   return new Promise((res,rej)=>{
@@ -447,8 +459,10 @@ function loadNaverSdk(key){
   });
 }
 function initNaverMap(){
-  naverMap=new naver.maps.Map('naverMap',{zoom:16,center:new naver.maps.LatLng(37.5088,127.0631)});
-  naverMarker=new naver.maps.Marker({map:naverMap,position:naverMap.getCenter()});
+  const c=new naver.maps.LatLng(37.5088,127.0631);
+  naverMap=new naver.maps.Map('naverMap',{zoom:16,center:c});
+  naverMarker=new naver.maps.Marker({map:naverMap,position:c});
+  try{ naverPano=new naver.maps.Panorama('naverPano',{position:c,pov:{pan:0,tilt:0,fov:100}}); }catch(e){ naverPano=null; }
   naverReady=true;
 }
 function geocodeNaver(addr){
@@ -458,18 +472,19 @@ function geocodeNaver(addr){
     const a=resp.v2&&resp.v2.addresses; if(!a||!a.length)return;
     const ll=new naver.maps.LatLng(parseFloat(a[0].y),parseFloat(a[0].x));
     naverMap.setCenter(ll); naverMap.setZoom(17); naverMarker.setPosition(ll);
+    if(naverPano){ try{ naverPano.setPosition(ll); }catch(e){} }
   });
 }
 function showGoogle(a){
-  $('naverMap').style.display='none'; $('mapFrame').style.display='block';
+  $('mapSplit').style.display='none'; $('mapFrame').style.display='block';
   $('mapFrame').src=`https://www.google.com/maps?q=${encodeURIComponent(a)}&z=16&hl=ko&output=embed`;
 }
 function updateMap(){
   const a=curAddr();
-  if(naverReady){ $('naverMap').style.display='block'; $('mapFrame').style.display='none'; geocodeNaver(a); }
+  if(naverReady){ $('mapSplit').style.display='flex'; $('mapFrame').style.display='none'; geocodeNaver(a); }
   else showGoogle(a);
   $('mapNote').innerHTML= naverReady
-    ? `인라인 <b>네이버 지도</b> 표시 중 · 현재: <b>${a}</b> (주소 입력 후 Enter로 이동)`
+    ? `좌 <b>지도</b> · 우 <b>로드뷰</b> 표시 중 · 현재: <b>${a}</b> (주소 입력 후 Enter로 이동)`
     : `현재 일반 미리보기 지도 표시 중 · <b>${a}</b> · <b>네이버 지도에서 보기</b>로 새 탭에서 정확히 확인할 수 있습니다.`;
 }
 $('addr').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();updateMap();}});
