@@ -449,13 +449,22 @@ let naverReady=false, naverMap=null, naverMarker=null, naverPano=null, naverKeyU
 
 function loadNaverSdk(key){
   return new Promise((res,rej)=>{
-    if(window.naver&&window.naver.maps&&naverKeyUsed===key){res();return;}
-    const old=document.getElementById('naverSdk'); if(old)old.remove();
-    const s=document.createElement('script'); s.id='naverSdk';
-    s.src=`https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=${encodeURIComponent(key)}&submodules=panorama,geocoder`;
-    s.onload=()=>{naverKeyUsed=key;res();};
-    s.onerror=()=>rej(new Error('sdk load fail'));
-    document.head.appendChild(s);
+    if(window.naver&&window.naver.maps&&window.naver.maps.Panorama&&window.naver.maps.Service&&naverKeyUsed===key){res();return;}
+    ['naverSdk','naverPanoSdk','naverGeoSdk'].forEach(id=>{const o=document.getElementById(id);if(o)o.remove();});
+    const core=document.createElement('script'); core.id='naverSdk';
+    core.src=`https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=${encodeURIComponent(key)}`;
+    core.onerror=()=>rej(new Error('core load fail'));
+    core.onload=()=>{
+      // 서브모듈은 개별 파일로 순차 로드 (submodules= 파라미터의 document.write 오류 회피)
+      const p=document.createElement('script'); p.id='naverPanoSdk'; p.src='https://oapi.map.naver.com/openapi/v3/maps-panorama.js';
+      const g=document.createElement('script'); g.id='naverGeoSdk'; g.src='https://oapi.map.naver.com/openapi/v3/maps-geocoder.js';
+      let done=0,failed=false;
+      const ok=()=>{ if(failed)return; if(++done===2){ naverKeyUsed=key; res(); } };
+      const bad=()=>{ if(!failed){ failed=true; rej(new Error('submodule load fail')); } };
+      p.onload=ok; g.onload=ok; p.onerror=bad; g.onerror=bad;
+      document.head.appendChild(p); document.head.appendChild(g);
+    };
+    document.head.appendChild(core);
   });
 }
 function initNaverMap(){
