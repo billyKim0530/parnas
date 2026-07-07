@@ -127,7 +127,7 @@
   .sh-loc{font-family:var(--mono);font-size:13px;color:var(--ink-soft);margin-top:12px;display:flex;align-items:center;gap:8px}
   .sh-loc .pin{color:var(--gold)}
 
-  .rail{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));margin-top:28px;border:1px solid var(--line);border-radius:13px;overflow:hidden;background:var(--surface)}
+  .rail{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin-top:28px;border:1px solid var(--line);border-radius:13px;overflow:hidden;background:var(--surface)}
   .rail-c{padding:15px 18px;border-right:1px solid var(--line-soft)}
   .rail-c:last-child{border-right:none}
   .rail-c .k{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint)}
@@ -212,6 +212,25 @@
   .val .v-items li::before{content:"";position:absolute;left:0;top:8px;width:4px;height:4px;border-radius:50%;background:var(--gold-dim)}
   .pm-co{font-family:var(--mono);font-size:12.5px;color:var(--gold);letter-spacing:.02em}
   .pm-person{font-size:14.5px;font-weight:600;margin-top:2px}
+  .lcard .lc{padding:15px 0}
+  .lcard .lc+.lc{border-top:1px solid var(--line-soft)}
+  .lc-k{font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--ink-soft);font-weight:500}
+  .lc-v{font-size:23px;font-weight:800;color:var(--ink);margin-top:8px;letter-spacing:-.02em;line-height:1.1;overflow-wrap:anywhere}
+  .lc-v .lc-u{font-size:13px;font-weight:600;color:var(--ink-soft);margin-left:5px;letter-spacing:0}
+  .staff-card .st-total{font-size:24px;font-weight:800;letter-spacing:-.02em;margin-bottom:14px;line-height:1.1}
+  .staff-card .st-unit{font-size:14px;font-weight:600;color:var(--ink-soft);margin-left:2px}
+  .staff-card .st-sub{font-size:13px;font-weight:500;color:var(--ink-soft);margin-left:4px}
+  .st-bar{height:12px;border-radius:100px;background:var(--surface-2);overflow:hidden;margin-bottom:16px;border:1px solid var(--line)}
+  .st-fill{height:100%;background:var(--pos);border-radius:100px;min-width:3px}
+  .st-legend{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
+  .st-cell{display:flex;justify-content:space-between;align-items:center;border:1px solid var(--line);border-radius:11px;padding:13px 15px;background:var(--surface-2)}
+  .st-k{font-size:12.5px;color:var(--ink-soft);font-weight:500;display:flex;align-items:center;gap:7px}
+  .st-dot{width:9px;height:9px;border-radius:50%;flex:none}
+  .st-dot.direct{background:var(--pos)}
+  .st-dot.contract{background:var(--ink-faint)}
+  .st-v{font-size:19px;font-weight:800;margin-top:5px;letter-spacing:-.02em}
+  .st-v .u{font-size:12px;font-weight:600;color:var(--ink-soft);margin-left:2px}
+  .st-pct{font-size:13px;font-weight:600;color:var(--ink-soft);font-family:var(--mono)}
 
   /* ---------- compare ---------- */
   .compare{padding:6px}
@@ -243,7 +262,7 @@
     .lg-rooms{margin-top:4px}
     .sheet{padding:26px 20px 34px}
     .grid{grid-template-columns:minmax(0,1fr)}
-    .rail,.perf-kpis{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+    .perf-kpis{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
   }
   @media(max-width:640px){
     .masthead{padding:24px 16px 0}
@@ -290,7 +309,8 @@
     .summary{gap:12px 18px}
     .stat b{font-size:21px}
     .sh-name{font-size:26px}
-    .rail{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+    .rail-c{padding:11px 9px}
+    .rail-c .v{font-size:16px}
   }
   @media(prefers-reduced-motion:reduce){.sheet-anim{animation:none}*{transition:none!important}}
   :focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:6px}
@@ -344,28 +364,28 @@ const ASSETS=[
  {id:"md1",name:"명동 I",site:"https://www.ninetreehotels.com/nth1/",group:"lease",status:"run",grade:"3성급",open:"2012.12",location:"서울 중구 명동10길 51",
   landArea:"206평",floorArea:"2,505평",floors:"B1~16F",rooms:144,roomSize:"6.2평",
   contractPeriod:{v:"20년",note:"2012.12.01~"},commission:"총매출의 44%",minGuarantee:"33억 / 년",deposit:"23억",
-  amc:"캡스톤자산운용",fund:"-",landlord:"국민은행",etc:"상업시설 파르나스 포함운영",
-  purchase:"680억",loan:{v:"501억",items:["선 431 · 중 70","금리 3.6% | 6%"]},pm:{co:"쿠시먼",person:"김민경 매니저"}},
+  amc:"캡스톤자산운용",fund:"-",landlord:"SDB인베스트먼트",etc:"상업시설 파르나스 포함운영",
+  purchase:"750억",loan:{v:"501억",items:["선 431 · 중 70","금리 3.6% | 6%"]},pm:{co:"쿠시먼",person:"김민경 매니저"},staff:{d:10,c:20}},
  {id:"md2",name:"명동 II",site:"https://www.ninetreehotels.com/nth2/",group:"lease",status:"run",grade:"4성급",open:"2017.03",location:"서울 중구 초동 72-10",
   landArea:"846평",floorArea:{v:"7,746평",note:"호텔 7,267평"},floors:"B5~17F",rooms:408,roomSize:"8.2평",
   contractPeriod:{v:"20년",note:"2017.03.06~"},commission:{v:"객실 매출의 42%",note:"1년차만 43%"},minGuarantee:{v:"63억 / 년 (2년차~)",note:"1년차 60억"},deposit:"34억",
-  amc:"㈜씨디엘호텔코리아",fund:"-",landlord:"㈜씨디엘호텔코리아",etc:"상업시설 임대인 별도임차",
-  purchase:"1,400억",loan:"-",pm:{co:"㈜CDL코리아",person:"박성현 차장"}},
+  amc:"㈜씨디엘호텔코리아",fund:"-",landlord:"씨디엘호텔코리아",etc:"상업시설 임대인 별도임차",
+  purchase:"1,400억",loan:"-",pm:{co:"㈜CDL코리아",person:"박성현 차장"},staff:{d:15,c:53}},
  {id:"is",name:"인사동",site:"https://www.ninetreehotels.com/nth3/",group:"lease",status:"run",grade:"4성급",open:"2019.10",location:"서울 종로구 관훈동 155-2",
   landArea:"1,770평",floorArea:{v:"13,715평",note:"호텔 5,685평"},floors:{v:"B4~13F",note:"호텔 5~13F"},rooms:301,roomSize:"7.4평",
   contractPeriod:{v:"20년",note:"2019.10.09~"},commission:"총매출의 42%",minGuarantee:"34억 / 년",deposit:{v:"34억",note:"이행보증증권"},
-  amc:"이지스자산운용",fund:"로터스PFV㈜",landlord:"로터스PFV㈜",etc:"상업시설 임대인 별도임차",
-  purchase:{v:"2,980억",note:"전체 · 안녕인사동"},loan:{v:"2,310억",items:["선 2,000 · 후 310","변동 2.49%+α | 5.8%"]},pm:{co:"젠스타메이트",person:"장지원 과장"}},
+  amc:"이지스자산운용",fund:"로터스PFV㈜",landlord:"로터스PFV주식회사",etc:"상업시설 임대인 별도임차",
+  purchase:"2,980억",loan:{v:"2,310억",items:["선 2,000 · 후 310","변동 2.49%+α | 5.8%"]},pm:{co:"젠스타메이트",person:"장지원 과장"},staff:{d:13,c:46}},
  {id:"ddm",name:"동대문",site:"https://www.ninetreehotels.com/nth4/",group:"lease",status:"run",grade:"4성급",open:"2020.01",location:"서울 중구 을지로5가 92-2",
   landArea:"234평",floorArea:"2,757평",floors:"B3~20F",rooms:219,roomSize:"6.5평",
   contractPeriod:{v:"20년",note:"2020.01.14~"},commission:"총매출의 38%",minGuarantee:{v:"22억 / 년 (3년차~)",note:"1년차 18억 · 2년차 21억"},deposit:"18억",
-  amc:"신한리츠운용",fund:"하나빔부동산인베스트먼트 위탁관리부동산투자회사",landlord:"하나빔부동산인베스트먼트 위탁관리부동산투자회사",etc:"상업시설 파르나스 포함운영",
-  purchase:{v:"540억",note:"보증금 제외"},loan:"306억",pm:{co:"젠스타메이트",person:"하나윰 과장"}},
+  amc:"신한리츠운용",fund:"하나빔부동산인베스트먼트 위탁관리부동산투자회사",landlord:"개인(백OO)",etc:"상업시설 파르나스 포함운영",
+  purchase:"810억",loan:"306억",pm:{co:"젠스타메이트",person:"하나윰 과장"},staff:{d:11,c:27}},
  {id:"pg",name:"판교",site:"https://www.ninetreehotels.com/nth5/",group:"lease",status:"run",grade:"3성급",open:{v:"2021.06",note:"운영 7/1"},location:"성남시 수정구 시흥동 296-3",
   landArea:"4,175평",floorArea:{v:"27,337평",note:"호텔 7,076평"},floors:{v:"B6~10F",note:"호텔 3~10F"},rooms:315,roomSize:"8.0평",
   contractPeriod:{v:"20년",note:"2021.07.01~"},commission:"총매출의 42%",minGuarantee:{v:"38.5억 / 년",note:"1~5년차 무료객실이용권 매월 200박"},deposit:{v:"38.5억",note:"이행보증증권"},
-  amc:"이지스자산운용",fund:"이지스제415호 전문투자형 사모부동산투자신탁",landlord:"우리은행",etc:"상업시설 임대인 별도임차",
-  purchase:"1,900억",loan:"1,055억",pm:{co:"젠스타메이트",person:"장우영 과장"}},
+  amc:"이지스자산운용",fund:"이지스제415호 전문투자형 사모부동산투자신탁",landlord:"이지스자산운용",etc:"상업시설 임대인 별도임차",
+  purchase:"1,900억",loan:"1,055억",pm:{co:"젠스타메이트",person:"장우영 과장"},staff:{d:15,c:50}},
  {id:"jj",name:"제주",site:"https://www.parnashoteljeju.com/",group:"lease",status:"run",grade:"5성급",open:"2022.07",location:"서귀포시 색달동 3039-1",
   landArea:"16,104평",floorArea:"13,143평",floors:"B4~8F",rooms:307,roomSize:"11.2평",
   contractPeriod:{v:"17년",note:"2022.07.22~"},commission:{items:["객실매출의 37%","기타매출의 10%"]},minGuarantee:"92억 / 년",deposit:"92억",
@@ -374,7 +394,7 @@ const ASSETS=[
  {id:"loca",name:"나인트리 프리미어 로카우스",site:"https://www.rokaushotel.com/",group:"trust",status:"run",grade:"4성급",open:{v:"2023 上",note:"오픈"},location:"서울 용산구 한강로3가 40-708",
   landArea:"830평",floorArea:"12,208평",floors:"B7~30F",rooms:274,roomSize:"8.5평",
   contractPeriod:"5년",commission:{title:"위탁운영 수수료 조건",items:["기본 · 총매출의 2%","성과 · EBITDA의 5%"]},minGuarantee:"-",deposit:"-",
-  amc:"-",fund:"-",landlord:"육군인사사령부",etc:"상업·업무시설 임차 관련 협상 中",purchase:"-",loan:"-",pm:null},
+  amc:"-",fund:"-",landlord:"육군인사사령부",etc:"상업·업무시설 임차 관련 협상 中",purchase:"-",loan:"-",pm:null,staff:{d:109,c:62}},
  {id:"insc",name:"인스케이프 by 파르나스",site:"",group:"build",status:"build",grade:"생활숙박시설",open:{v:"2026.12",note:"예정"},location:"강원 전지리 7-4",
   landArea:"900평",floorArea:"16,768평",floors:"B7~39F",rooms:393,roomSize:"주력 13~17평",
   contractPeriod:"5년",commission:{title:"재위탁운영 수수료 조건",items:["기본 · 매출의 2%","PARNAS 브랜드사용료 · 객실매출의 1%","성과 · EBITDA의 4~7%"]},minGuarantee:"-",deposit:"-",
@@ -556,6 +576,25 @@ const sheet=document.getElementById("sheet");
 let current=0,currentMetric="rev";
 function pmVal(pm){return pm?`<span class="pm-co">${esc(pm.co)}</span><span class="pm-person">${esc(pm.person)}</span>`:'<span class="na">해당 없음</span>';}
 function rowH(k,v){return `<div class="row"><div class="k">${k}</div><div class="val">${v}</div></div>`;}
+function purchaseBig(f){
+ const t=(f&&typeof f==="object")?f.v:f;
+ if(t==null||t==="-"||t==="")return '<span class="na">해당 없음</span>';
+ const m=String(t).match(/^([\d,]+)\s*억/);
+ return m?`${m[1]}<span class="lc-u">억원</span>`:esc(t);
+}
+function staffBlock(a){
+ const d=a.staff.d,c=a.staff.c,t=d+c;
+ const dp=Math.round(d/t*100),cp=100-dp;
+ return `<div class="card wide staff-card">
+  <div class="sec-head"><span class="en">Staffing</span><span class="ko">근무 인원 현황</span></div>
+  <div class="st-total">${t}<span class="st-unit">명</span> <span class="st-sub">(직영 ${d}명 + 도급 ${c}명)</span></div>
+  <div class="st-bar"><div class="st-fill" style="width:${dp}%"></div></div>
+  <div class="st-legend">
+   <div class="st-cell"><div><div class="st-k"><span class="st-dot direct"></span>직영 인력</div><div class="st-v">${d}<span class="u">명</span></div></div><div class="st-pct">${dp}%</div></div>
+   <div class="st-cell"><div><div class="st-k"><span class="st-dot contract"></span>도급 인력</div><div class="st-v">${c}<span class="u">명</span></div></div><div class="st-pct">${cp}%</div></div>
+  </div>
+ </div>`;
+}
 
 function render(i){
  const a=ASSETS[i],g=GROUPS[a.group],st=STATUS[a.status],idx=String(i+1).padStart(2,"0");
@@ -573,10 +612,10 @@ function render(i){
    <div class="rail-c"><div class="k">Grade 등급</div><div class="v">${esc(a.grade)}</div></div>
    <div class="rail-c"><div class="k">Rooms 객실수</div><div class="v">${a.rooms}<small>실</small></div></div>
    <div class="rail-c"><div class="k">Open 오픈</div><div class="v">${esc(txt(a.open))}</div></div>
-   <div class="rail-c"><div class="k">Investment 총 투자</div><div class="v">${esc(txt(a.purchase))}</div></div>
   </div>
   ${perf}
   <div class="grid">
+   ${a.staff?staffBlock(a):""}
    <div class="card">
     <div class="sec-head"><span class="en">Scale</span><span class="ko">규모</span></div>
     ${rowH("대지면적",val(a.landArea))}${rowH("연면적",val(a.floorArea))}${rowH("층수",val(a.floors))}${rowH("객실 크기",val(a.roomSize))}
@@ -585,9 +624,16 @@ function render(i){
     <div class="sec-head"><span class="en">Contract</span><span class="ko">계약 조건</span></div>
     ${rowH("계약기간",val(a.contractPeriod))}${rowH("수수료율",val(a.commission))}${rowH("최소보장금",val(a.minGuarantee))}${rowH("보증금",val(a.deposit))}
    </div>
-   <div class="card wide">
-    <div class="sec-head"><span class="en">Finance</span><span class="ko">투자 · 금융</span></div>
-    ${rowH("매입가 (총 투자)",val(a.purchase))}${rowH("Loan (금리)",val(a.loan))}
+   <div class="card wide lcard">
+    <div class="sec-head"><span class="en">Landlord</span><span class="ko">임대인 · 매입</span></div>
+    <div class="lc">
+     <div class="lc-k">임대인 정보</div>
+     <div class="lc-v">${a.landlord&&a.landlord!=="-"?esc(a.landlord):'<span class="na">해당 없음</span>'}</div>
+    </div>
+    <div class="lc">
+     <div class="lc-k">매입가</div>
+     <div class="lc-v">${purchaseBig(a.purchase)}</div>
+    </div>
    </div>
   </div>`;
  sheet.classList.remove("sheet-anim");void sheet.offsetWidth;sheet.classList.add("sheet-anim");
