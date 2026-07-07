@@ -292,9 +292,24 @@ const K2E={room:'객실수입',fnb:'식음수입',banquet:'연회수입',ancilla
 function baseFromHist(entity,year){
   const r=HIST[entity].data[year];
   const rev={}; Object.entries(K2E).forEach(([k,ko])=>rev[k]=r[ko]||0);
-  return {label:`${entity} · ${year}${''}`,
+  return {label:`${entity} · ${year} 연간`,
     occRoom:r['Occupied Room'],availRoom:r['Available Room'],adr:r['ADR'],
     rev, cogs:r['매출원가'], sga:r['일반관리비']};
+}
+// 사업장별 대지면적·연면적 프리셋 (평 기준)
+const AREA_PY={'nh2+':{land:846,gfa:7267},'동대문':{land:221,gfa:2757},'IC+':{land:3961.7,gfa:41980}};
+// 사업장별 공시지가 (원/평)
+const GONGSI_PY={'nh2+':68530000,'동대문':61850000,'IC+':230000000};
+function applyAreaFor(entity){
+  const a=AREA_PY[entity]; if(!a)return;
+  const f=(areaUnit==='m2')?M2_PER_PY:1;
+  $('a_land').value=fmtArea(a.land*f);
+  $('a_gfa').value=fmtArea(a.gfa*f);
+  if(GONGSI_PY[entity]!=null){
+    BASE_GONGSI=GONGSI_PY[entity];               // 사업장 공시지가(원/평)를 배수 기준값으로 갱신
+    $('a_gongsi').value=comma(baseGongsiCur());   // 현재 단위(평/㎡)로 표시
+    syncMultChips(); updateUnitLabels();
+  }
 }
 let BASE;
 function setBase(b){
@@ -312,17 +327,14 @@ const REV_META=[['room','객실수입','link'],['fnb','식음수입','other'],['
 
 function buildBaseSel(){
   const sel=$('baseSel');
-  let opts=`<option value="__default__">${BASE_DEFAULT.label}</option>`;
-  opts+=`<optgroup label="IC+ (인터컨티넨탈 연결) 과거 실적">`+
-    HIST['IC+'].years.map(String).map(y=>`<option value="IC+|${y}">IC+ · ${y}${' 연간'}</option>`).join('')+`</optgroup>`;
-  // also allow IC(호텔)
-  if(HIST['IC(호텔)']) opts+=`<optgroup label="IC(호텔) 부문">`+
-    HIST['IC(호텔)'].years.map(String).map(y=>`<option value="IC(호텔)|${y}">IC(호텔) · ${y}</option>`).join('')+`</optgroup>`;
-  sel.innerHTML=opts;
+  const entYears=en=>(HIST[en]?HIST[en].years:[]).filter(y=>{const r=HIST[en].data[String(y)];return r&&(r['Occupied Room']||0)>0;});
+  const grp=(en,label)=>`<optgroup label="${label}">`+
+    entYears(en).map(String).map(y=>`<option value="${en}|${y}">${en} · ${y} 연간</option>`).join('')+`</optgroup>`;
+  sel.innerHTML=grp('nh2+','nh2+')+grp('동대문','동대문')+grp('IC+','IC+ (인터컨티넨탈 연결)');
+  sel.value='IC+|2025';
   sel.addEventListener('change',e=>{
-    const v=e.target.value;
-    if(v==='__default__') setBase(BASE_DEFAULT);
-    else{const [en,yr]=v.split('|'); setBase(baseFromHist(en,yr));}
+    const [en,yr]=e.target.value.split('|');
+    applyAreaFor(en); setBase(baseFromHist(en,yr));
   });
 }
 
@@ -406,7 +418,7 @@ $('beFin').addEventListener('click',()=>setADR(breakeven(assume().finTot)));
 }));
 
 /* ---------- 공시지가 배수 (매입가 시나리오) ---------- */
-const BASE_GONGSI=230000000; // 원/평 (canonical)
+let BASE_GONGSI=230000000; // 원/평 (기준값 — 사업장 선택 시 갱신)
 const M2_PER_PY=400/121;     // 1평 = 3.3058㎡
 let areaUnit='py';
 function baseGongsiCur(){return areaUnit==='m2'?BASE_GONGSI/M2_PER_PY:BASE_GONGSI;}
@@ -527,7 +539,7 @@ window.navermap_authFailure=function(){ naverReady=false; showGoogle(curAddr());
 applyNaver(NAVER_KEY);
 
 /* ---------- init ---------- */
-buildBaseSel(); setBase(BASE_DEFAULT);
+buildBaseSel(); applyAreaFor('IC+'); setBase(baseFromHist('IC+','2025'));
 </script>
 </body>
 </html>
