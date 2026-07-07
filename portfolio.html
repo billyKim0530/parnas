@@ -269,9 +269,14 @@
     .row{grid-template-columns:94px minmax(0,1fr);gap:12px}
     .metric-tabs{gap:5px}
     .mt{padding:6px 12px;font-size:12px}
-    /* 차트: 폰에서 잘리지 않게 가로 스크롤 + 최소 폭 유지 */
-    .chart-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
-    .chart{min-width:520px}
+    /* 차트: 폰 화면에 한 번에 맞춤(스크롤 없음) + 글자 확대 */
+    .chart{min-width:0;width:100%}
+    .ch-val{font-size:18px}
+    .ch-yr{font-size:18px}
+    .ch-lval{font-size:16px}
+    .ch-axlbl{font-size:15px}
+    .ch-gzero,.ch-cagr{stroke-width:2}
+    .ch-dot{r:3.4}
   }
   @media(max-width:400px){
     h1{font-size:23px}
@@ -416,10 +421,10 @@ const ledger=document.getElementById("ledger");
 })();
 
 /* ---------- chart ---------- */
-function fmtBar(v,m){
+function fmtBar(v,m,narrow){
  if(v==null)return"";
  if(m==="rev"||m==="op")return (v/1e8).toFixed(Math.abs(v/1e8)<10?1:0)+"억";
- if(m==="adr"||m==="revpar")return Math.round(v).toLocaleString("ko-KR");
+ if(m==="adr"||m==="revpar")return narrow?(v/1e4).toFixed(1)+"만":Math.round(v).toLocaleString("ko-KR");
  if(m==="occ")return v.toFixed(0)+"%";
  return v;
 }
@@ -439,7 +444,8 @@ function growth(series,m,fromYear){
  return {yoy,cagr,cy0:series[baseIdx].y,cy1:series[series.length-1].y};
 }
 function chart(series,m,fromYear){
- const n=series.length,W=760,H=266,padB=32,padT=32,padL=10,padR=76;
+ const narrow=(typeof window!=="undefined"&&window.matchMedia)?window.matchMedia("(max-width:640px)").matches:false;
+ const n=series.length,W=760,H=266,padB=32,padT=32,padL=10,padR=narrow?16:76;
  const vals=series.map(s=>s[m]==null?0:s[m]);
  let max=Math.max(...vals,0),min=Math.min(...vals,0);
  if(max===0&&min===0)max=1;const range=(max-min)||1;
@@ -450,7 +456,7 @@ function chart(series,m,fromYear){
   const cx=padL+step*i+step/2,v=d[m]==null?0:d[m],h=Math.abs(v)/range*plotH;
   const y=v>=0?zeroY-h:zeroY,neg=v<0,last=i===n-1;
   bars+=`<rect x="${(cx-bw/2).toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(1)}" height="${Math.max(h,1).toFixed(1)}" rx="3" class="ch-bar ${neg?'neg':''} ${last?'last':''}"/>`;
-  const ly=v>=0?y-8:y+h+15;bars+=`<text x="${cx.toFixed(1)}" y="${ly.toFixed(1)}" class="ch-val ${last?'hl':''}">${fmtBar(v,m)}</text>`;
+  const ly=v>=0?y-8:y+h+15;bars+=`<text x="${cx.toFixed(1)}" y="${ly.toFixed(1)}" class="ch-val ${last?'hl':''}">${fmtBar(v,m,narrow)}</text>`;
   bars+=`<text x="${cx.toFixed(1)}" y="${H-9}" class="ch-yr">'${String(d.y).slice(2)}</text>`;
  });
  // 성장률 라인 + CAGR (우축)
@@ -470,7 +476,7 @@ function chart(series,m,fromYear){
   // CAGR 점선 + 값 태그(우측)
   if(g.cagr!=null){const cy=mapY(g.cagr);
    sec+=`<line x1="${padL}" x2="${W-padR}" y1="${cy.toFixed(1)}" y2="${cy.toFixed(1)}" class="ch-cagr"/>`;
-   sec+=`<text x="${(W-6)}" y="${(cy+4).toFixed(1)}" text-anchor="end" class="ch-cagrtag">CAGR ${cagrTxt}</text>`;
+   if(!narrow)sec+=`<text x="${(W-6)}" y="${(cy+4).toFixed(1)}" text-anchor="end" class="ch-cagrtag">CAGR ${cagrTxt}</text>`;
   }
   // 전년비 성장률 라인
   let dpath="",started=false;
@@ -645,6 +651,16 @@ tabs.forEach(t=>t.addEventListener("click",()=>{
  document.getElementById("stat-rev").innerHTML=(s/1e8).toLocaleString("ko-KR",{maximumFractionDigits:0})+'<span class="u">억</span>';})();
 
 select(0);
+
+/* 화면 크기/회전 변경 시 차트 다시 맞춤 */
+let _rz;
+window.addEventListener("resize",()=>{
+ clearTimeout(_rz);
+ _rz=setTimeout(()=>{
+  const w=document.getElementById("chart-wrap"),id=ASSETS[current].id;
+  if(w&&PERF[id])w.innerHTML=chart(PERF[id],currentMetric,CAGR_FROM[id]);
+ },200);
+});
 </script>
 </body>
 </html>
