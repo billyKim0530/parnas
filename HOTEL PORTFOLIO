@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>파르나스 호텔 자산 포트폴리오</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+  :root{
+    --bg:#0E0E10;
+    --bg-grad:#141416;
+    --panel:#161719;
+    --surface:#1C1D20;
+    --surface-2:#232427;
+    --line:#2C2D31;
+    --line-soft:#222327;
+    --gold:#E3A63C;
+    --gold-bright:#F2C266;
+    --gold-dim:#8A6C2E;
+    --growth:#C4C8D0;
+    --ink:#EDEDEE;
+    --ink-soft:#9A9AA0;
+    --ink-faint:#66666C;
+    --pos:#5FBE8C;
+    --neg:#E4674B;
+    --pos-bg:rgba(95,190,140,.13);
+    --neg-bg:rgba(228,103,75,.14);
+    --gold-bg:rgba(227,166,60,.13);
+    --sans:'Pretendard','Noto Sans KR',system-ui,-apple-system,sans-serif;
+    --disp:'Pretendard','Noto Sans KR',sans-serif;
+    --mono:'Pretendard','Noto Sans KR',sans-serif;
+    --shadow:0 2px 4px rgba(0,0,0,.4),0 24px 60px -30px rgba(0,0,0,.8);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    font-family:var(--sans);color:var(--ink);line-height:1.56;letter-spacing:-.01em;
+    background:
+      radial-gradient(1100px 560px at 82% -10%,rgba(227,166,60,.05),transparent 58%),
+      radial-gradient(800px 460px at 0% 6%,rgba(227,166,60,.025),transparent 55%),
+      var(--bg);
+    background-attachment:fixed;-webkit-font-smoothing:antialiased;min-height:100vh;
+  }
+  .na{color:var(--ink-faint);font-weight:400}
+  .mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+  /* ---------- masthead ---------- */
+  .masthead{max-width:1300px;margin:0 auto;padding:40px 34px 0}
+  .brandline{
+    display:flex;align-items:center;gap:11px;font-family:var(--mono);font-size:11px;
+    letter-spacing:.24em;text-transform:uppercase;color:var(--gold);font-weight:500;
+  }
+  .brandline .dot{width:5px;height:5px;border-radius:50%;background:var(--gold)}
+  .brandline .thin{color:var(--ink-faint)}
+  .title-row{
+    display:flex;align-items:flex-end;justify-content:space-between;gap:26px;flex-wrap:wrap;
+    margin-top:15px;padding-bottom:26px;border-bottom:1px solid var(--line);
+  }
+  h1{font-weight:900;font-size:clamp(28px,4.4vw,47px);line-height:1.02;letter-spacing:-.03em}
+  h1 em{font-family:var(--disp);font-style:italic;font-weight:400;color:var(--gold);letter-spacing:-.01em}
+  .summary{display:flex;gap:28px;flex-wrap:wrap}
+  .stat{display:flex;flex-direction:column;gap:3px;min-width:62px}
+  .stat b{font-family:var(--disp);font-weight:500;font-size:32px;line-height:1;letter-spacing:-.02em;color:var(--ink)}
+  .stat b .u{font-size:15px;color:var(--ink-soft);margin-left:1px;font-family:var(--sans);font-weight:600}
+  .stat span{font-family:var(--mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-soft)}
+
+  /* ---------- tabs ---------- */
+  .tabs{max-width:1300px;margin:22px auto 0;padding:0 34px;display:flex;gap:2px}
+  .tab{
+    font-family:var(--sans);font-size:13.5px;font-weight:600;color:var(--ink-soft);
+    background:none;border:none;cursor:pointer;padding:11px 18px;border-radius:9px 9px 0 0;
+    position:relative;transition:color .18s,background .18s;letter-spacing:-.01em;
+  }
+  .tab .en{font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--ink-faint);margin-right:8px}
+  .tab:hover{color:var(--ink)}
+  .tab[aria-selected="true"]{color:var(--ink);background:var(--panel)}
+  .tab[aria-selected="true"] .en{color:var(--gold)}
+  .tab[aria-selected="true"]::after{content:"";position:absolute;left:18px;right:18px;bottom:-1px;height:2px;background:var(--gold)}
+
+  .board{max-width:1300px;margin:0 auto;padding:0 34px 60px}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:0 15px 15px 15px;box-shadow:var(--shadow);overflow:hidden}
+  .workspace{display:grid;grid-template-columns:322px 1fr}
+
+  /* ---------- ledger ---------- */
+  .ledger{border-right:1px solid var(--line);padding:8px;background:linear-gradient(180deg,rgba(212,175,87,.04),transparent 140px)}
+  .lg-group{padding:15px 12px 6px}
+  .lg-group-t{display:flex;align-items:baseline;gap:8px}
+  .lg-group-t b{font-size:12px;font-weight:700;color:var(--gold);letter-spacing:.02em}
+  .lg-group-t span{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;color:var(--ink-faint);text-transform:uppercase}
+  .lg-group-sub{font-size:11px;color:var(--ink-faint);margin-top:2px}
+  .lg-item{
+    width:100%;text-align:left;background:none;border:1px solid transparent;cursor:pointer;
+    display:grid;grid-template-columns:32px 1fr auto;align-items:center;gap:10px;
+    padding:11px 12px;border-radius:11px;font-family:var(--sans);transition:background .16s,border-color .16s;color:var(--ink);
+  }
+  .lg-item:hover{background:var(--surface)}
+  .lg-item[aria-current="true"]{background:var(--surface-2);border-color:var(--gold-dim);box-shadow:inset 3px 0 0 var(--gold)}
+  .lg-item[aria-current="true"] .lg-idx{color:var(--gold)}
+  .lg-item[aria-current="true"] .lg-name{color:var(--ink)}
+  .lg-idx{font-family:var(--disp);font-size:17px;font-weight:500;color:var(--ink-faint);text-align:center}
+  .lg-name{font-size:15px;font-weight:700;letter-spacing:-.02em}
+  .lg-meta{font-size:12px;color:var(--ink-soft);margin-top:2px;display:block}
+  .lg-rooms{font-family:var(--mono);font-size:12px;font-weight:500;color:var(--ink-soft);white-space:nowrap}
+
+  /* ---------- tearsheet ---------- */
+  .sheet{padding:36px 40px 44px;min-height:640px}
+  .sheet-anim{animation:rise .42s cubic-bezier(.2,.7,.2,1)}
+  @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+  .sh-top{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  .sh-index{font-family:var(--disp);font-size:15px;color:var(--gold);font-weight:500;letter-spacing:.02em}
+  .badge{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;padding:4px 10px;border-radius:100px;font-weight:600;display:inline-flex;align-items:center;gap:6px}
+  .badge::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+  .badge.run{color:var(--gold);background:var(--gold-bg)}
+  .badge.build{color:var(--neg);background:var(--neg-bg)}
+  .chip{font-size:12.5px;color:var(--ink-soft);border:1px solid var(--line);padding:4px 11px;border-radius:100px;font-weight:500}
+  .sh-name{font-size:clamp(32px,4.8vw,50px);font-weight:900;letter-spacing:-.035em;line-height:1.02;margin-top:17px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .site-link{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border:1px solid var(--line);border-radius:10px;color:var(--gold);transition:.16s;flex:none;background:var(--surface)}
+  .site-link:hover{background:var(--gold-bg);border-color:var(--gold);color:var(--gold-bright);transform:translateY(-1px)}
+  .site-link svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round}
+  .site-link.sm{width:22px;height:22px;border-radius:6px;margin-left:7px;vertical-align:middle}
+  .site-link.sm svg{width:13px;height:13px;stroke-width:1.8}
+  .sh-loc{font-family:var(--mono);font-size:13px;color:var(--ink-soft);margin-top:12px;display:flex;align-items:center;gap:8px}
+  .sh-loc .pin{color:var(--gold)}
+
+  .rail{display:grid;grid-template-columns:repeat(4,1fr);margin-top:28px;border:1px solid var(--line);border-radius:13px;overflow:hidden;background:var(--surface)}
+  .rail-c{padding:15px 18px;border-right:1px solid var(--line-soft)}
+  .rail-c:last-child{border-right:none}
+  .rail-c .k{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint)}
+  .rail-c .v{font-size:22px;font-weight:800;letter-spacing:-.02em;margin-top:6px;line-height:1.05;color:var(--ink)}
+  .rail-c .v small{font-size:12.5px;font-weight:500;color:var(--ink-soft);margin-left:3px}
+
+  /* ---------- performance card ---------- */
+  .perf{margin-top:24px;border:1px solid var(--line);border-radius:14px;padding:22px 24px 20px;background:var(--surface)}
+  .perf .sec-head .en{color:var(--gold-dim)}
+  .perf-kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--line-soft);border:1px solid var(--line);border-radius:11px;overflow:hidden;margin-bottom:20px}
+  .kpi{background:var(--panel);padding:13px 15px}
+  .kpi .kk{font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint)}
+  .kpi .kv{font-size:18.5px;font-weight:800;letter-spacing:-.02em;margin-top:6px;line-height:1;color:var(--ink)}
+  .kpi .kv small{font-size:11.5px;color:var(--ink-soft);font-weight:600;margin-left:1px}
+  .kpi .kd{font-family:var(--mono);font-size:11px;font-weight:600;margin-top:7px;display:flex;align-items:center;gap:3px}
+  .kd.up{color:var(--pos)} .kd.down{color:var(--neg)} .kd.flat{color:var(--ink-faint)}
+
+  .metric-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+  .mt{font-family:var(--sans);font-size:12.5px;font-weight:600;color:var(--ink-soft);background:var(--panel);border:1px solid var(--line);padding:6px 14px;border-radius:100px;cursor:pointer;transition:.15s}
+  .mt:hover{border-color:var(--gold-dim);color:var(--ink)}
+  .mt[aria-pressed="true"]{background:var(--gold);color:#1a1509;border-color:var(--gold)}
+
+  .chart-wrap{border:1px solid var(--line);border-radius:11px;padding:8px 10px 4px;background:var(--panel)}
+  .chart{width:100%;height:auto;display:block}
+  .ch-zero{stroke:var(--line);stroke-width:1}
+  .ch-gzero{stroke:var(--growth);stroke-width:1;stroke-dasharray:2 3;opacity:.45}
+  .ch-bar{fill:var(--gold-dim);transition:fill .3s}
+  .ch-bar.last{fill:var(--gold)}
+  .ch-bar.neg{fill:#5a3a34}
+  .ch-bar.neg.last{fill:var(--neg)}
+  .ch-val{fill:var(--ink-soft);font-family:var(--mono);font-size:12px;text-anchor:middle;font-weight:600}
+  .ch-val.hl{fill:var(--gold-bright)}
+  .ch-yr{fill:var(--ink-soft);font-family:var(--mono);font-size:12px;text-anchor:middle}
+  .ch-line{fill:none;stroke:var(--growth);stroke-width:2.2;stroke-linejoin:round;stroke-linecap:round}
+  .ch-dot{fill:var(--growth);stroke:var(--panel);stroke-width:1.5}
+  .ch-lval{fill:var(--growth);font-family:var(--mono);font-size:11px;text-anchor:middle;font-weight:600}
+  .ch-cagr{stroke:var(--gold-bright);stroke-width:1.6;stroke-dasharray:6 4;opacity:1}
+  .ch-cagrtag{fill:var(--gold-bright);font-family:var(--mono);font-size:11px;font-weight:600}
+  .ch-axlbl{fill:var(--ink-faint);font-family:var(--mono);font-size:10px}
+  .ch-legend{display:flex;gap:18px;flex-wrap:wrap;padding:10px 6px 3px;font-family:var(--mono);font-size:11.5px;color:var(--ink-soft)}
+  .ch-legend .lg-k{display:flex;align-items:center;gap:7px}
+  .lg-k::before{content:"";display:inline-block}
+  .lg-bar::before{width:11px;height:11px;background:var(--gold);border-radius:2px}
+  .lg-line::before{width:17px;border-top:2px solid var(--growth)}
+  .lg-cagr{color:var(--gold-bright)}
+  .lg-cagr::before{width:17px;border-top:2px dashed var(--gold-bright)}
+
+  .perf-table{margin-top:16px;overflow-x:auto}
+  .perf-table table{border-collapse:collapse;width:100%;min-width:520px;font-size:12.5px}
+  .perf-table th{font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint);
+    text-align:right;padding:9px 10px;border-bottom:1px solid var(--line);font-weight:600}
+  .perf-table th:first-child{text-align:left}
+  .perf-table td{padding:10px 10px;text-align:right;border-bottom:1px solid var(--line-soft);font-family:var(--mono);font-variant-numeric:tabular-nums;color:var(--ink);font-weight:500;font-size:13px}
+  .perf-table td:first-child{text-align:left;font-family:var(--disp);font-size:15px;color:var(--gold);font-weight:500}
+  .perf-table tr:last-child td{border-bottom:none}
+  .perf-table tr.cur td{background:var(--gold-bg)}
+  .perf-table td.neg{color:var(--neg)}
+  .perf-note{font-size:11px;color:var(--ink-faint);margin-top:12px;font-family:var(--mono);letter-spacing:.02em;line-height:1.5}
+
+  .noperf{margin-top:24px;border:1px dashed var(--line);border-radius:12px;padding:22px 24px;color:var(--ink-soft);font-size:13.5px;background:var(--surface)}
+  .noperf b{color:var(--ink);font-weight:700}
+
+  /* ---------- info grid ---------- */
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:24px}
+  .card{border:1px solid var(--line);border-radius:13px;padding:20px 22px 8px;background:var(--surface)}
+  .card.wide{grid-column:1 / -1}
+  .sec-head{display:flex;align-items:baseline;gap:9px;margin-bottom:12px}
+  .sec-head .en{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold-dim);font-weight:600}
+  .sec-head .ko{font-size:14px;font-weight:700;color:var(--ink)}
+  .sec-head::after{content:"";flex:1;height:1px;background:var(--line-soft);align-self:center}
+
+  .row{display:grid;grid-template-columns:122px 1fr;gap:16px;padding:11px 0;border-top:1px solid var(--line-soft);align-items:start}
+  .row:first-of-type{border-top:none}
+  .row .k{font-size:13.5px;color:var(--ink-soft);font-weight:500;padding-top:1px}
+  .row .val{font-size:15px;font-weight:600;color:var(--ink);letter-spacing:-.01em}
+  .val .v-main{display:block}
+  .val .v-title{display:block;font-weight:700;color:var(--gold);font-size:13.5px;margin-bottom:5px}
+  .val .v-note{display:block;font-size:13px;font-weight:400;color:var(--ink-soft);margin-top:3px}
+  .val .v-items{list-style:none;display:flex;flex-direction:column;gap:5px}
+  .val .v-items li{font-size:13.5px;font-weight:500;color:var(--ink);padding-left:13px;position:relative}
+  .val .v-items li::before{content:"";position:absolute;left:0;top:8px;width:4px;height:4px;border-radius:50%;background:var(--gold-dim)}
+  .pm-co{font-family:var(--mono);font-size:12.5px;color:var(--gold);letter-spacing:.02em}
+  .pm-person{font-size:14.5px;font-weight:600;margin-top:2px}
+
+  /* ---------- compare ---------- */
+  .compare{padding:6px}
+  .cmp-scroll{overflow-x:auto}
+  table.cmp{border-collapse:collapse;width:100%;min-width:960px;font-size:12.5px}
+  .cmp thead th{position:sticky;top:0;background:var(--panel);z-index:2;text-align:left;padding:15px 14px;border-bottom:1px solid var(--line);font-weight:800;letter-spacing:-.02em;vertical-align:bottom}
+  .cmp thead th .grp{display:block;font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-dim);font-weight:600;margin-bottom:5px}
+  .cmp th.rowhead,.cmp td.rowhead{position:sticky;left:0;background:var(--surface);z-index:1;font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);font-weight:600;white-space:nowrap;border-right:1px solid var(--line)}
+  .cmp thead th.rowhead{z-index:3;background:var(--panel)}
+  .cmp tbody td{padding:12px 14px;border-bottom:1px solid var(--line-soft);vertical-align:top;font-weight:500;color:var(--ink);font-size:13px}
+  .cmp tbody tr:hover td{background:var(--surface)}
+  .cmp tbody tr.divide td{border-top:1px solid var(--line)}
+  .cmp td .sub{display:block;font-size:11.5px;color:var(--ink-faint);font-weight:400;margin-top:2px}
+  .cmp td.fig{font-family:var(--mono);font-variant-numeric:tabular-nums}
+  .cmp-name{font-size:14.5px;font-weight:800;letter-spacing:-.02em;color:var(--ink)}
+
+  .hidden{display:none}
+  .foot{max-width:1300px;margin:0 auto;padding:0 34px 44px;font-size:11.5px;color:var(--ink-faint);display:flex;gap:8px;flex-wrap:wrap}
+  .foot .m{font-family:var(--mono);letter-spacing:.04em;color:var(--gold-dim)}
+
+  @media(max-width:960px){
+    .workspace{grid-template-columns:1fr}
+    .ledger{border-right:none;border-bottom:1px solid var(--line);display:flex;gap:8px;overflow-x:auto;padding:12px;scroll-snap-type:x mandatory}
+    .lg-group{display:contents}
+    .lg-group-t,.lg-group-sub{display:none}
+    .lg-item{display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-width:160px;scroll-snap-align:start;grid-template-columns:none;border:1px solid var(--line)}
+    .lg-idx{display:none}
+    .lg-rooms{margin-top:4px}
+    .sheet{padding:26px 20px 34px}
+    .grid{grid-template-columns:1fr}
+    .rail,.perf-kpis{grid-template-columns:1fr 1fr}
+  }
+  @media(max-width:560px){
+    .masthead{padding:28px 18px 0}.tabs{padding:0 18px}.board{padding:0 18px 40px}.foot{padding:0 18px 40px}
+    .summary{gap:18px}.stat b{font-size:25px}
+    .perf-kpis{grid-template-columns:1fr 1fr}
+  }
+  @media(prefers-reduced-motion:reduce){.sheet-anim{animation:none}*{transition:none!important}}
+  :focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:6px}
+  ::selection{background:rgba(212,175,87,.3)}
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="brandline"><span class="dot"></span>PARNAS HOTEL<span class="thin">·</span><span class="thin">ASSET PORTFOLIO</span></div>
+  <div class="title-row">
+    <h1>주요 호텔 운영 및 <em>개발 현황</em></h1>
+    <div class="summary">
+      <div class="stat"><b>8</b><span>Assets</span></div>
+      <div class="stat"><b>2,361</b><span>Total Rooms</span></div>
+      <div class="stat"><b id="stat-rev">—</b><span>2025 매출 (6개)</span></div>
+      <div class="stat"><b>7<span class="u">/1</span></b><span>운영 / 개발</span></div>
+    </div>
+  </div>
+</header>
+
+<div class="tabs" role="tablist" aria-label="보기 전환">
+  <button class="tab" role="tab" id="tab-detail" aria-selected="true" aria-controls="view-detail"><span class="en">01</span>자산별 상세</button>
+  <button class="tab" role="tab" id="tab-compare" aria-selected="false" aria-controls="view-compare"><span class="en">02</span>포트폴리오 비교</button>
+</div>
+
+<main class="board">
+  <section class="panel" id="view-detail" role="tabpanel" aria-labelledby="tab-detail">
+    <div class="workspace">
+      <nav class="ledger" id="ledger" role="listbox" aria-label="자산 선택" tabindex="0"></nav>
+      <div class="sheet" id="sheet"></div>
+    </div>
+  </section>
+  <section class="panel compare hidden" id="view-compare" role="tabpanel" aria-labelledby="tab-compare" hidden>
+    <div class="cmp-scroll"><table class="cmp" id="cmp-table"></table></div>
+  </section>
+</main>
+
+<script>
+/* ===== 연도별 실적 합계 (원 단위) — 2025.12 연결 ===== */
+const PERF = {
+ md1:[{y:2016,rev:7915791960,room:5431930250,op:1966057625,adr:112024,occ:92.0,revpar:103065},{y:2017,rev:7285794991,room:4682527381,op:1300923753,adr:100871,occ:88.3,revpar:89089},{y:2018,rev:7549105733,room:4990973236,op:1403075538,adr:104547,occ:90.8,revpar:94958},{y:2019,rev:6528161578,room:5258700072,op:1138617638,adr:109527,occ:91.3,revpar:100051},{y:2020,rev:2088772942,room:1296382139,op:-2406330835,adr:60190,occ:40.9,revpar:24597},{y:2021,rev:1446117083,room:1252529325,op:-3066733069,adr:50400,occ:47.3,revpar:23830},{y:2022,rev:3852755881,room:3617633930,op:442779450,adr:91026,occ:75.6,revpar:68829},{y:2023,rev:8156898083,room:7474567425,op:2453656984,adr:162173,occ:87.7,revpar:142210},{y:2024,rev:10008368392,room:8710773383,op:2695154628,adr:189534,occ:87.2,revpar:165277},{y:2025,rev:11025815891,room:9708704441,op:2982370490,adr:207283,occ:89.1,revpar:184717}],
+ md2:[{y:2017,rev:8610037609,room:8282700915,op:-1950499553,adr:93470,occ:72.2,revpar:67444},{y:2018,rev:12891530875,room:12486155026,op:-521819516,adr:97256,occ:86.2,revpar:83845},{y:2019,rev:14141614941,room:13766966629,op:1878754656,adr:103481,occ:89.3,revpar:92445},{y:2020,rev:4528112126,room:4214045783,op:-5346168489,adr:70338,occ:40.1,revpar:28220},{y:2021,rev:5494608328,room:5236167312,op:-3260072831,adr:70918,occ:49.6,revpar:35161},{y:2022,rev:13053212161,room:12709640259,op:1983872014,adr:109049,occ:78.3,revpar:85345},{y:2023,rev:21985940118,room:21578149281,op:6763679893,adr:160834,occ:90.1,revpar:144898},{y:2024,rev:25211912040,room:24786257573,op:8491507843,adr:186252,occ:89.1,revpar:165985},{y:2025,rev:27324974518,room:26895029196,op:9057000933,adr:200976,occ:89.9,revpar:180601}],
+ is:[{y:2019,rev:1753242738,room:1678343582,op:-302760454,adr:108329,occ:61.3,revpar:66380},{y:2020,rev:4608847094,room:4551902458,op:-2074885522,adr:78085,occ:52.9,revpar:41319},{y:2021,rev:5541680901,room:5455287307,op:-1192997671,adr:82200,occ:60.4,revpar:49654},{y:2022,rev:11344188013,room:11224097475,op:1692442039,adr:126651,occ:80.7,revpar:102163},{y:2023,rev:17090500654,room:16974458897,op:3975792356,adr:170603,occ:90.6,revpar:154503},{y:2024,rev:18834693045,room:18627002301,op:4816749938,adr:189097,occ:89.4,revpar:169081},{y:2025,rev:19633474068,room:19444454474,op:4720386388,adr:200881,occ:88.1,revpar:176985}],
+ ddm:[{y:2020,rev:1456723810,room:1426751028,op:-2295542517,adr:48598,occ:38.0,revpar:18456},{y:2021,rev:2272185768,room:2255052244,op:-1723406855,adr:53568,occ:52.7,revpar:28211},{y:2022,rev:5179477250,room:5148034855,op:249421686,adr:82013,occ:78.5,revpar:64403},{y:2023,rev:8991239572,room:8937200005,op:2408316942,adr:129147,occ:86.6,revpar:111806},{y:2024,rev:10159058854,room:10094539797,op:2941729559,adr:145942,occ:86.3,revpar:125939},{y:2025,rev:10705293395,room:10636849738,op:2797209560,adr:153605,occ:86.6,revpar:133069}],
+ pg:[{y:2021,rev:2553268531,room:2466817623,op:-302881084,adr:130203,occ:32.7,revpar:42561},{y:2022,rev:9724676484,room:9479478379,op:1039787987,adr:134217,occ:61.4,revpar:82448},{y:2023,rev:12614440541,room:12388599604,op:1325483354,adr:139431,occ:77.3,revpar:107750},{y:2024,rev:11655939806,room:11393055995,op:907133043,adr:133268,occ:74.2,revpar:98821},{y:2025,rev:12119762639,room:11902718771,op:860333273,adr:132830,occ:77.9,revpar:103524}],
+ jj:[{y:2022,rev:17479647557,room:11822577406,op:-3269579048,adr:393784,occ:60.0,revpar:236258},{y:2023,rev:42679067685,room:28183141797,op:-48783537,adr:348435,occ:72.2,revpar:251512},{y:2024,rev:46817712126,room:30194738660,op:-228426963,adr:326423,occ:82.3,revpar:268727},{y:2025,rev:50098055205,room:31492509611,op:694715912,adr:329678,occ:85.2,revpar:281045}]
+};
+
+const ASSETS=[
+ {id:"md1",name:"명동 I",site:"https://www.ninetreehotels.com/nth1/",group:"lease",status:"run",grade:"3성급",open:"2012.12",location:"서울 중구 명동10길 51",
+  landArea:"206평",floorArea:"2,505평",floors:"B1~16F",rooms:144,roomSize:"6.2평",
+  contractPeriod:{v:"20년",note:"2012.12.01~"},commission:"총매출의 44%",minGuarantee:"33억 / 년",deposit:"23억",
+  amc:"캡스톤자산운용",fund:"-",landlord:"국민은행",etc:"상업시설 파르나스 포함운영",
+  purchase:"680억",loan:{v:"501억",items:["선 431 · 중 70","금리 3.6% | 6%"]},pm:{co:"쿠시먼",person:"김민경 매니저"}},
+ {id:"md2",name:"명동 II",site:"https://www.ninetreehotels.com/nth2/",group:"lease",status:"run",grade:"4성급",open:"2017.03",location:"서울 중구 초동 72-10",
+  landArea:"846평",floorArea:{v:"7,746평",note:"호텔 7,267평"},floors:"B5~17F",rooms:408,roomSize:"8.2평",
+  contractPeriod:{v:"20년",note:"2017.03.06~"},commission:{v:"객실 매출의 42%",note:"1년차만 43%"},minGuarantee:{v:"63억 / 년 (2년차~)",note:"1년차 60억"},deposit:"34억",
+  amc:"㈜씨디엘호텔코리아",fund:"-",landlord:"㈜씨디엘호텔코리아",etc:"상업시설 임대인 별도임차",
+  purchase:"1,400억",loan:"-",pm:{co:"㈜CDL코리아",person:"박성현 차장"}},
+ {id:"is",name:"인사동",site:"https://www.ninetreehotels.com/nth3/",group:"lease",status:"run",grade:"4성급",open:"2019.10",location:"서울 종로구 관훈동 155-2",
+  landArea:"1,770평",floorArea:{v:"13,715평",note:"호텔 5,685평"},floors:{v:"B4~13F",note:"호텔 5~13F"},rooms:301,roomSize:"7.4평",
+  contractPeriod:{v:"20년",note:"2019.10.09~"},commission:"총매출의 42%",minGuarantee:"34억 / 년",deposit:{v:"34억",note:"이행보증증권"},
+  amc:"이지스자산운용",fund:"로터스PFV㈜",landlord:"로터스PFV㈜",etc:"상업시설 임대인 별도임차",
+  purchase:{v:"2,980억",note:"전체 · 안녕인사동"},loan:{v:"2,310억",items:["선 2,000 · 후 310","변동 2.49%+α | 5.8%"]},pm:{co:"젠스타메이트",person:"장지원 과장"}},
+ {id:"ddm",name:"동대문",site:"https://www.ninetreehotels.com/nth4/",group:"lease",status:"run",grade:"4성급",open:"2020.01",location:"서울 중구 을지로5가 92-2",
+  landArea:"234평",floorArea:"2,757평",floors:"B3~20F",rooms:219,roomSize:"6.5평",
+  contractPeriod:{v:"20년",note:"2020.01.14~"},commission:"총매출의 38%",minGuarantee:{v:"22억 / 년 (3년차~)",note:"1년차 18억 · 2년차 21억"},deposit:"18억",
+  amc:"신한리츠운용",fund:"하나빔부동산인베스트먼트 위탁관리부동산투자회사",landlord:"하나빔부동산인베스트먼트 위탁관리부동산투자회사",etc:"상업시설 파르나스 포함운영",
+  purchase:{v:"540억",note:"보증금 제외"},loan:"306억",pm:{co:"젠스타메이트",person:"하나윰 과장"}},
+ {id:"pg",name:"판교",site:"https://www.ninetreehotels.com/nth5/",group:"lease",status:"run",grade:"3성급",open:{v:"2021.06",note:"운영 7/1"},location:"성남시 수정구 시흥동 296-3",
+  landArea:"4,175평",floorArea:{v:"27,337평",note:"호텔 7,076평"},floors:{v:"B6~10F",note:"호텔 3~10F"},rooms:315,roomSize:"8.0평",
+  contractPeriod:{v:"20년",note:"2021.07.01~"},commission:"총매출의 42%",minGuarantee:{v:"38.5억 / 년",note:"1~5년차 무료객실이용권 매월 200박"},deposit:{v:"38.5억",note:"이행보증증권"},
+  amc:"이지스자산운용",fund:"이지스제415호 전문투자형 사모부동산투자신탁",landlord:"우리은행",etc:"상업시설 임대인 별도임차",
+  purchase:"1,900억",loan:"1,055억",pm:{co:"젠스타메이트",person:"장우영 과장"}},
+ {id:"jj",name:"제주",site:"https://www.parnashoteljeju.com/",group:"lease",status:"run",grade:"5성급",open:"2022.07",location:"서귀포시 색달동 3039-1",
+  landArea:"16,104평",floorArea:"13,143평",floors:"B4~8F",rooms:307,roomSize:"11.2평",
+  contractPeriod:{v:"17년",note:"2022.07.22~"},commission:{items:["객실매출의 37%","기타매출의 10%"]},minGuarantee:"92억 / 년",deposit:"92억",
+  amc:"블루코브자산운용",fund:"블루코브 전문투자형 사모부동산투자신탁 3호",landlord:"중소기업은행",etc:"상업시설 블루코브 별도임차",
+  purchase:{v:"2,951억",note:"기존 대비 +50억"},loan:{v:"2,109억",items:["선 1,859 · 중 250","금리 3.5% | 5.9%"]},pm:{co:"로그호텔그룹",person:"윤광록 부장"}},
+ {id:"loca",name:"나인트리 프리미어 로카우스",site:"https://www.rokaushotel.com/",group:"trust",status:"run",grade:"4성급",open:{v:"2023 上",note:"오픈"},location:"서울 용산구 한강로3가 40-708",
+  landArea:"830평",floorArea:"12,208평",floors:"B7~30F",rooms:274,roomSize:"8.5평",
+  contractPeriod:"5년",commission:{title:"위탁운영 수수료 조건",items:["기본 · 총매출의 2%","성과 · EBITDA의 5%"]},minGuarantee:"-",deposit:"-",
+  amc:"-",fund:"-",landlord:"육군인사사령부",etc:"상업·업무시설 임차 관련 협상 中",purchase:"-",loan:"-",pm:null},
+ {id:"insc",name:"인스케이프 by 파르나스",site:"",group:"build",status:"build",grade:"생활숙박시설",open:{v:"2026.12",note:"예정"},location:"강원 전지리 7-4",
+  landArea:"900평",floorArea:"16,768평",floors:"B7~39F",rooms:393,roomSize:"주력 13~17평",
+  contractPeriod:"5년",commission:{title:"재위탁운영 수수료 조건",items:["기본 · 매출의 2%","PARNAS 브랜드사용료 · 객실매출의 1%","성과 · EBITDA의 4~7%"]},minGuarantee:"-",deposit:"-",
+  amc:"-",fund:"-",landlord:"피데스개발",etc:"-",purchase:"-",loan:"-",pm:null}
+];
+
+const GROUPS={lease:{label:"임차운영",en:"Lease",sub:"나인트리 · 파르나스 운영"},trust:{label:"위탁운영",en:"Trust",sub:"위탁 운영"},build:{label:"위탁운영 · 건축 中",en:"Development",sub:"준공 예정"}};
+const STATUS={run:{cls:"run",txt:"운영중"},build:{cls:"build",txt:"건축중"}};
+const METRICS=[
+ {k:"rev",label:"매출액"},{k:"op",label:"영업이익"},{k:"adr",label:"ADR"},{k:"occ",label:"점유율"}
+];
+
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const won=v=>v==null?"—":(v/1e8).toLocaleString("ko-KR",{minimumFractionDigits:1,maximumFractionDigits:1})+"억";
+const wonPlain=v=>v==null?"—":Math.round(v).toLocaleString("ko-KR")+"원";
+const pct=v=>v==null?"—":v.toFixed(1)+"%";
+
+function val(f){
+ if(f==null||f==="")return '<span class="na">—</span>';
+ if(typeof f==="string")return f==="-"?'<span class="na">해당 없음</span>':esc(f);
+ let h="";
+ if(f.title)h+=`<span class="v-title">${esc(f.title)}</span>`;
+ if(f.v)h+=`<span class="v-main">${esc(f.v)}</span>`;
+ if(f.note)h+=`<span class="v-note">${esc(f.note)}</span>`;
+ if(f.items)h+=`<ul class="v-items">${f.items.map(i=>`<li>${esc(i)}</li>`).join("")}</ul>`;
+ return h;
+}
+function txt(f){if(f==null||f==="")return "—";if(typeof f==="string")return f==="-"?"—":f;return f.v||f.title||(f.items?f.items[0]:"—");}
+function siteLink(a,cls){
+ if(!a.site)return "";
+ const c=cls?(" "+cls):"";
+ return `<a class="site-link${c}" href="${a.site}" target="_blank" rel="noopener noreferrer" title="공식 홈페이지 열기" aria-label="${esc(a.name)} 공식 홈페이지">`+
+  `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="3" y1="12" x2="21" y2="12"/><path d="M12 3c2.6 2.4 3.9 5.6 3.9 9s-1.3 6.6-3.9 9c-2.6-2.4-3.9-5.6-3.9-9S9.4 5.4 12 3z"/></svg></a>`;
+}
+
+/* ---------- ledger ---------- */
+const ledger=document.getElementById("ledger");
+(function(){let html="",last="";
+ ASSETS.forEach((a,i)=>{
+  if(a.group!==last){if(last!=="")html+="</div>";const g=GROUPS[a.group];
+   html+=`<div class="lg-group"><div class="lg-group-t"><b>${g.label}</b><span>${g.en}</span></div><div class="lg-group-sub">${g.sub}</div>`;last=a.group;}
+  const idx=String(i+1).padStart(2,"0");
+  html+=`<button class="lg-item" role="option" data-i="${i}" aria-current="${i===0}" aria-selected="${i===0}">
+   <span class="lg-idx">${idx}</span>
+   <span><span class="lg-name">${esc(a.name)}</span><span class="lg-meta">${a.grade} · ${STATUS[a.status].txt}</span></span>
+   <span class="lg-rooms">${a.rooms}실</span></button>`;
+ });
+ html+="</div>";ledger.innerHTML=html;
+})();
+
+/* ---------- chart ---------- */
+function fmtBar(v,m){
+ if(v==null)return"";
+ if(m==="rev"||m==="op")return (v/1e8).toFixed(Math.abs(v/1e8)<10?1:0)+"억";
+ if(m==="adr"||m==="revpar")return (v/1e4).toFixed(0)+"만";
+ if(m==="occ")return v.toFixed(0)+"%";
+ return v;
+}
+// 전년비 성장률(YoY) + CAGR — 직전값이 0 이하이거나 부호가 바뀌면 산출 불가(null)
+function growth(series,m){
+ const v=series.map(s=>s[m]);
+ const yoy=v.map((cur,i)=>{
+  if(i===0)return null;const p=v[i-1];
+  if(p==null||cur==null||p<=0)return null;
+  return (cur/p-1)*100;
+ });
+ const f=v[0],l=v[v.length-1];
+ let cagr=null;
+ if(f!=null&&l!=null&&f>0&&l>0&&v.length>1)cagr=(Math.pow(l/f,1/(v.length-1))-1)*100;
+ return {yoy,cagr};
+}
+function chart(series,m){
+ const n=series.length,W=760,H=266,padB=32,padT=32,padL=10,padR=76;
+ const vals=series.map(s=>s[m]==null?0:s[m]);
+ let max=Math.max(...vals,0),min=Math.min(...vals,0);
+ if(max===0&&min===0)max=1;const range=(max-min)||1;
+ const plotH=H-padT-padB,zeroY=padT+(max/range)*plotH,step=(W-padL-padR)/n,bw=Math.min(step*0.5,54);
+ // 막대 (좌축)
+ let bars=`<line x1="${padL}" x2="${W-padR}" y1="${zeroY.toFixed(1)}" y2="${zeroY.toFixed(1)}" class="ch-zero"/>`;
+ series.forEach((d,i)=>{
+  const cx=padL+step*i+step/2,v=d[m]==null?0:d[m],h=Math.abs(v)/range*plotH;
+  const y=v>=0?zeroY-h:zeroY,neg=v<0,last=i===n-1;
+  bars+=`<rect x="${(cx-bw/2).toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(1)}" height="${Math.max(h,1).toFixed(1)}" rx="3" class="ch-bar ${neg?'neg':''} ${last?'last':''}"/>`;
+  const ly=v>=0?y-8:y+h+15;bars+=`<text x="${cx.toFixed(1)}" y="${ly.toFixed(1)}" class="ch-val ${last?'hl':''}">${fmtBar(v,m)}</text>`;
+  bars+=`<text x="${cx.toFixed(1)}" y="${H-9}" class="ch-yr">'${String(d.y).slice(2)}</text>`;
+ });
+ // 성장률 라인 + CAGR (우축)
+ const g=growth(series,m);
+ const valid=g.yoy.filter(x=>x!=null);
+ const pts=valid.slice();if(g.cagr!=null)pts.push(g.cagr);
+ const cagrTxt=g.cagr!=null?(g.cagr>=0?"+":"")+g.cagr.toFixed(1)+"%":"산출 불가";
+ let sec="";
+ if(pts.length){
+  const realMin=Math.min(...pts),realMax=Math.max(...pts);
+  let sMin=Math.min(realMin,0),sMax=Math.max(realMax,0);
+  const pd=((sMax-sMin)||1)*0.2;sMin-=pd;sMax+=pd;
+  const mapY=val=>(H-padB)-(val-sMin)/(sMax-sMin)*(H-padB-padT);
+  // 0% 기준선은 실제 하락(음수 성장)이 있을 때만 표시
+  if(realMin<-0.5){const zy=mapY(0);sec+=`<line x1="${padL}" x2="${W-padR}" y1="${zy.toFixed(1)}" y2="${zy.toFixed(1)}" class="ch-gzero"/><text x="${(W-padR+6)}" y="${(zy+3.5).toFixed(1)}" class="ch-axlbl">0%</text>`;}
+  // CAGR 점선 + 값 태그(우측)
+  if(g.cagr!=null){const cy=mapY(g.cagr);
+   sec+=`<line x1="${padL}" x2="${W-padR}" y1="${cy.toFixed(1)}" y2="${cy.toFixed(1)}" class="ch-cagr"/>`;
+   sec+=`<text x="${(W-6)}" y="${(cy+4).toFixed(1)}" text-anchor="end" class="ch-cagrtag">CAGR ${cagrTxt}</text>`;
+  }
+  // 전년비 성장률 라인
+  let dpath="",started=false;
+  g.yoy.forEach((val,i)=>{
+   if(val==null){started=false;return;}
+   const cx=padL+step*i+step/2,cy=mapY(val);
+   dpath+=(started?" L":"M")+cx.toFixed(1)+" "+cy.toFixed(1);started=true;
+  });
+  if(dpath)sec+=`<path d="${dpath}" class="ch-line"/>`;
+  const fmtPct=v=>(v>=0?"+":"")+(Math.abs(v)<10?v.toFixed(1):v.toFixed(0))+"%";
+  g.yoy.forEach((val,i)=>{
+   if(val==null)return;
+   const cx=padL+step*i+step/2,cy=mapY(val);
+   sec+=`<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="3" class="ch-dot"/>`;
+   const ly=cy<padT+18?cy+16:cy-9;
+   sec+=`<text x="${cx.toFixed(1)}" y="${ly.toFixed(1)}" class="ch-lval">${fmtPct(val)}</text>`;
+  });
+ }
+ return `<svg viewBox="0 0 ${W} ${H}" class="chart" preserveAspectRatio="xMidYMid meet" role="img" aria-label="연도별 ${m} 값 및 성장률 차트">${bars}${sec}</svg>
+ <div class="ch-legend"><span class="lg-k lg-bar">값 (좌축)</span><span class="lg-k lg-line">전년비 성장률 (우축)</span><span class="lg-k lg-cagr">전체 CAGR ${cagrTxt}</span></div>`;
+}
+
+/* ---------- performance block ---------- */
+function deltaHTML(cur,prev,type){
+ if(prev==null||cur==null)return '<span class="kd flat">—</span>';
+ let d,txt,cls;
+ if(type==="pp"){d=cur-prev;txt=(d>=0?"▲":"▼")+" "+Math.abs(d).toFixed(1)+"p";}
+ else if(type==="op"){d=cur-prev;txt=(d>=0?"▲":"▼")+" "+won(Math.abs(d));}
+ else{d=(cur-prev)/Math.abs(prev)*100;txt=(d>=0?"▲":"▼")+" "+Math.abs(d).toFixed(1)+"%";}
+ cls=d>0?"up":d<0?"down":"flat";
+ return `<span class="kd ${cls}">${txt}</span>`;
+}
+function perfBlock(id){
+ const P=PERF[id];if(!P)return "";
+ const cur=P[P.length-1],prev=P.length>1?P[P.length-2]:null,yr=cur.y;
+ const kpis=[
+  {kk:`매출액 '${String(yr).slice(2)}`,kv:won(cur.rev),d:deltaHTML(cur.rev,prev&&prev.rev,"pct")},
+  {kk:"영업이익",kv:won(cur.op),neg:cur.op<0,d:deltaHTML(cur.op,prev&&prev.op,"op")},
+  {kk:"ADR",kv:wonPlain(cur.adr),d:deltaHTML(cur.adr,prev&&prev.adr,"pct")},
+  {kk:"점유율",kv:pct(cur.occ),d:deltaHTML(cur.occ,prev&&prev.occ,"pp")},
+  {kk:"RevPAR",kv:wonPlain(cur.revpar),d:deltaHTML(cur.revpar,prev&&prev.revpar,"pct")}
+ ];
+ const khtml=kpis.map(k=>`<div class="kpi"><div class="kk">${esc(k.kk)}</div><div class="kv" ${k.neg?'style="color:var(--neg)"':''}>${k.kv}</div>${k.d}</div>`).join("");
+ const mt=METRICS.map(mm=>`<button class="mt" data-metric="${mm.k}" aria-pressed="${mm.k===currentMetric}">${mm.label}</button>`).join("");
+ let rows="";
+ P.forEach((d,i)=>{
+  const cls=i===P.length-1?"cur":"";
+  rows+=`<tr class="${cls}"><td>'${String(d.y).slice(2)}</td>
+   <td>${won(d.rev)}</td><td>${won(d.room)}</td>
+   <td class="${d.op<0?'neg':''}">${won(d.op)}</td>
+   <td>${wonPlain(d.adr)}</td><td>${pct(d.occ)}</td><td>${wonPlain(d.revpar)}</td></tr>`;
+ });
+ return `<div class="card wide perf">
+  <div class="sec-head"><span class="en">Performance</span><span class="ko">연도별 실적 (실적 합계)</span></div>
+  <div class="perf-kpis">${khtml}</div>
+  <div class="metric-tabs" id="metric-tabs">${mt}</div>
+  <div class="chart-wrap" id="chart-wrap">${chart(P,currentMetric)}</div>
+  <div class="perf-table"><table>
+   <thead><tr><th>연도</th><th>매출액</th><th>객실매출</th><th>영업이익</th><th>ADR</th><th>점유율</th><th>RevPAR</th></tr></thead>
+   <tbody>${rows}</tbody></table></div>
+  <div class="perf-note">단위 · 매출/이익 억원 · ADR/RevPAR 원 · 점유율 % ｜ 각 연도 실적 합계 · 출처 2025.12 연결</div>
+ </div>`;
+}
+
+/* ---------- tearsheet ---------- */
+const sheet=document.getElementById("sheet");
+let current=0,currentMetric="rev";
+function pmVal(pm){return pm?`<span class="pm-co">${esc(pm.co)}</span><span class="pm-person">${esc(pm.person)}</span>`:'<span class="na">해당 없음</span>';}
+function rowH(k,v){return `<div class="row"><div class="k">${k}</div><div class="val">${v}</div></div>`;}
+
+function render(i){
+ const a=ASSETS[i],g=GROUPS[a.group],st=STATUS[a.status],idx=String(i+1).padStart(2,"0");
+ const perf=PERF[a.id]?perfBlock(a.id):
+   `<div class="noperf"><b>운영 실적 데이터 없음</b> — ${g.label} 자산으로 연결 손익 시트 미포함 항목입니다.</div>`;
+ sheet.innerHTML=`
+  <div class="sh-top">
+   <span class="sh-index">${idx} / 08</span>
+   <span class="badge ${st.cls}">${st.txt}</span>
+   <span class="chip">${g.label}</span><span class="chip">${a.grade}</span>
+  </div>
+  <div class="sh-name"><span>${esc(a.name)}</span>${siteLink(a)}</div>
+  <div class="sh-loc"><span class="pin">◈</span>${esc(a.location)}</div>
+  <div class="rail">
+   <div class="rail-c"><div class="k">Grade 등급</div><div class="v">${esc(a.grade)}</div></div>
+   <div class="rail-c"><div class="k">Rooms 객실수</div><div class="v">${a.rooms}<small>실</small></div></div>
+   <div class="rail-c"><div class="k">Open 오픈</div><div class="v">${esc(txt(a.open))}</div></div>
+   <div class="rail-c"><div class="k">Investment 총 투자</div><div class="v">${esc(txt(a.purchase))}</div></div>
+  </div>
+  ${perf}
+  <div class="grid">
+   <div class="card">
+    <div class="sec-head"><span class="en">Scale</span><span class="ko">규모</span></div>
+    ${rowH("대지면적",val(a.landArea))}${rowH("연면적",val(a.floorArea))}${rowH("층수",val(a.floors))}${rowH("객실 크기",val(a.roomSize))}
+   </div>
+   <div class="card">
+    <div class="sec-head"><span class="en">Contract</span><span class="ko">계약 조건</span></div>
+    ${rowH("계약기간",val(a.contractPeriod))}${rowH("수수료율",val(a.commission))}${rowH("최소보장금",val(a.minGuarantee))}${rowH("보증금",val(a.deposit))}
+   </div>
+   <div class="card wide">
+    <div class="sec-head"><span class="en">Structure</span><span class="ko">운용 구조</span></div>
+    <div class="grid" style="margin-top:0;gap:0 34px">
+     <div>${rowH("자산운용사",val(a.amc))}${rowH("펀드 · PFV",val(a.fund))}</div>
+     <div>${rowH("임대인 · 시행사",val(a.landlord))}${rowH("기타",val(a.etc))}</div>
+    </div>
+   </div>
+   <div class="card">
+    <div class="sec-head"><span class="en">Finance</span><span class="ko">투자 · 금융</span></div>
+    ${rowH("매입가 (총 투자)",val(a.purchase))}${rowH("Loan (금리)",val(a.loan))}
+   </div>
+   <div class="card">
+    <div class="sec-head"><span class="en">Contact</span><span class="ko">PM · 담당</span></div>
+    ${rowH("PM사 · 담당자",pmVal(a.pm))}
+   </div>
+  </div>`;
+ sheet.classList.remove("sheet-anim");void sheet.offsetWidth;sheet.classList.add("sheet-anim");
+ bindMetricTabs();
+}
+function bindMetricTabs(){
+ const tabs=document.getElementById("metric-tabs");if(!tabs)return;
+ tabs.querySelectorAll(".mt").forEach(b=>b.addEventListener("click",()=>{
+  currentMetric=b.dataset.metric;
+  tabs.querySelectorAll(".mt").forEach(x=>x.setAttribute("aria-pressed",x===b));
+  document.getElementById("chart-wrap").innerHTML=chart(PERF[ASSETS[current].id],currentMetric);
+ }));
+}
+function select(i){current=i;
+ ledger.querySelectorAll(".lg-item").forEach(b=>{const on=+b.dataset.i===i;b.setAttribute("aria-current",on);b.setAttribute("aria-selected",on);});
+ render(i);
+}
+ledger.addEventListener("click",e=>{const b=e.target.closest(".lg-item");if(b)select(+b.dataset.i);});
+ledger.addEventListener("keydown",e=>{
+ if(["ArrowDown","ArrowRight"].includes(e.key)){e.preventDefault();select((current+1)%ASSETS.length);scrollInto();}
+ if(["ArrowUp","ArrowLeft"].includes(e.key)){e.preventDefault();select((current-1+ASSETS.length)%ASSETS.length);scrollInto();}
+});
+function scrollInto(){const el=ledger.querySelector(`.lg-item[data-i="${current}"]`);if(el)el.scrollIntoView({block:"nearest",inline:"nearest",behavior:"smooth"});}
+
+/* ---------- compare ---------- */
+(function(){
+ const lastP=id=>{const P=PERF[id];return P?P[P.length-1]:null;};
+ const rows=[
+  ["운영형태",a=>GROUPS[a.group].label,0],
+  ["등급",a=>a.grade,0],["오픈",a=>cell(a.open),0],
+  ["객실수",a=>`<span class="fig">${a.rooms}</span>실`,0],
+  ["대지면적",a=>a.landArea,0],["연면적",a=>cell(a.floorArea),0],
+  ["계약기간",a=>cell(a.contractPeriod),0],
+  ["수수료율",a=>cellCom(a.commission),0],
+  ["최소보장금",a=>cell(a.minGuarantee),0],
+  ["매입가",a=>cell(a.purchase),0],["Loan",a=>cell(a.loan),0],
+  ["'25 매출",a=>{const p=lastP(a.id);return p?`<span class="fig">${won(p.rev)}</span>`:'<span class="na">—</span>';},1],
+  ["'25 영업이익",a=>{const p=lastP(a.id);return p?`<span class="fig" style="${p.op<0?'color:var(--neg)':''}">${won(p.op)}</span>`:'<span class="na">—</span>';},0],
+  ["'25 ADR",a=>{const p=lastP(a.id);return p?`<span class="fig">${wonPlain(p.adr)}</span>`:'<span class="na">—</span>';},0],
+  ["'25 점유율",a=>{const p=lastP(a.id);return p?`<span class="fig">${pct(p.occ)}</span>`:'<span class="na">—</span>';},0]
+ ];
+ function cell(f){if(f==null||f==="-"||f==="")return '<span class="na">—</span>';if(typeof f==="string")return f;let h=esc(f.v||f.title||"");if(f.items)h=esc(f.items.join(" / "));else if(f.note)h+=`<span class="sub">${esc(f.note)}</span>`;return h;}
+ function cellCom(f){if(typeof f==="string")return f;if(f.v){let h=esc(f.v);if(f.note)h+=`<span class="sub">${esc(f.note)}</span>`;return h;}if(f.items)return esc(f.items.join(" · "));return '<span class="na">—</span>';}
+ let head=`<thead><tr><th class="rowhead">항목</th>`;
+ ASSETS.forEach(a=>head+=`<th><span class="grp">${GROUPS[a.group].en}</span><span class="cmp-name">${esc(a.name)}${siteLink(a,'sm')}</span></th>`);
+ head+=`</tr></thead>`;
+ let body="<tbody>";
+ rows.forEach(([label,fn,div])=>{
+  body+=`<tr class="${div?'divide':''}"><td class="rowhead">${label}</td>`;
+  ASSETS.forEach(a=>body+=`<td class="fig">${fn(a)}</td>`);
+  body+="</tr>";
+ });
+ body+="</tbody>";
+ document.getElementById("cmp-table").innerHTML=head+body;
+})();
+
+/* ---------- tabs ---------- */
+const tabs=document.querySelectorAll(".tab");
+const views={detail:document.getElementById("view-detail"),compare:document.getElementById("view-compare")};
+tabs.forEach(t=>t.addEventListener("click",()=>{
+ const key=t.id==="tab-detail"?"detail":"compare";
+ tabs.forEach(x=>x.setAttribute("aria-selected",x===t));
+ Object.entries(views).forEach(([k,v])=>{const on=k===key;v.classList.toggle("hidden",!on);v.hidden=!on;});
+}));
+
+/* ---------- masthead revenue ---------- */
+(function(){let s=0;Object.values(PERF).forEach(P=>s+=P[P.length-1].rev);
+ document.getElementById("stat-rev").innerHTML=(s/1e8).toLocaleString("ko-KR",{maximumFractionDigits:0})+'<span class="u">억</span>';})();
+
+select(0);
+</script>
+</body>
+</html>
