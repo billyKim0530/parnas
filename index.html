@@ -300,6 +300,11 @@ function baseFromHist(entity,year){
 const AREA_PY={'nh2+':{land:846,gfa:7267},'동대문':{land:221,gfa:2757},'IC+':{land:3961.7,gfa:41980}};
 // 사업장별 공시지가 (원/평)
 const GONGSI_PY={'nh2+':68530000,'동대문':61850000,'IC+':230000000};
+// 사업장별 부지 주소 (선택 시 지도·거리뷰 자동 이동)
+const ADDR_BY={'IC+':'서울 강남구 테헤란로 521','동대문':'서울 중구 을지로 224','nh2+':'서울 중구 마른내로 28'};
+function applyAddrFor(entity){
+  if(ADDR_BY[entity]){ $('addr').value=ADDR_BY[entity]; if(typeof updateMap==='function') updateMap(); }
+}
 function applyAreaFor(entity){
   const a=AREA_PY[entity]; if(!a)return;
   const f=(areaUnit==='m2')?M2_PER_PY:1;
@@ -334,7 +339,7 @@ function buildBaseSel(){
   sel.value='IC+|2025';
   sel.addEventListener('change',e=>{
     const [en,yr]=e.target.value.split('|');
-    applyAreaFor(en); setBase(baseFromHist(en,yr));
+    applyAreaFor(en); applyAddrFor(en); setBase(baseFromHist(en,yr));
   });
 }
 
@@ -539,7 +544,7 @@ window.navermap_authFailure=function(){ naverReady=false; showGoogle(curAddr());
 applyNaver(NAVER_KEY);
 
 /* ---------- init ---------- */
-buildBaseSel(); applyAreaFor('IC+'); setBase(baseFromHist('IC+','2025'));
+buildBaseSel(); applyAreaFor('IC+'); applyAddrFor('IC+'); setBase(baseFromHist('IC+','2025'));
 </script>
 </body>
 </html>
