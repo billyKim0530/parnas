@@ -488,9 +488,16 @@ function initNaverMap(){
   const c=new naver.maps.LatLng(37.5088,127.0631);
   naverMap=new naver.maps.Map('naverMap',{zoom:16,center:c});
   naverMarker=new naver.maps.Marker({map:naverMap,position:c});
-  try{ naverPano=new naver.maps.Panorama('naverPano',{position:c,pov:{pan:0,tilt:0,fov:100}}); }catch(e){ naverPano=null; }
+  try{
+    naverPano=new naver.maps.Panorama('naverPano',{position:c,pov:{pan:0,tilt:0,fov:100},visible:true});
+    naver.maps.Event.addListener(naverPano,'init',refreshMapSizes);
+    naver.maps.Event.addListener(naverPano,'pano_changed',refreshMapSizes);
+  }catch(e){ naverPano=null; }
   naverReady=true;
-  requestAnimationFrame(refreshMapSizes); setTimeout(refreshMapSizes,300);
+  requestAnimationFrame(refreshMapSizes); setTimeout(refreshMapSizes,300); setTimeout(refreshMapSizes,900);
+  if(window.ResizeObserver){
+    try{ new ResizeObserver(()=>{ if(naverReady) refreshMapSizes(); }).observe(document.querySelector('.map-frame')); }catch(e){}
+  }
 }
 function refreshMapSizes(){
   if(!naverReady)return;
@@ -498,7 +505,11 @@ function refreshMapSizes(){
     if(naverMap) naver.maps.Event.trigger(naverMap,'resize');
     if(naverPano){
       const el=document.getElementById('naverPano');
-      if(el&&naverPano.setSize) naverPano.setSize(new naver.maps.Size(el.clientWidth, el.clientHeight));
+      if(el){
+        const w=el.clientWidth||(el.parentElement&&el.parentElement.clientWidth),
+              hh=el.clientHeight||(el.parentElement&&el.parentElement.clientHeight);
+        if(naverPano.setSize && w && hh){ try{ naverPano.setSize(new naver.maps.Size(w,hh)); }catch(_){} }
+      }
       naver.maps.Event.trigger(naverPano,'resize');
     }
   }catch(e){}
