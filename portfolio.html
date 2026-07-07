@@ -234,11 +234,12 @@
 
   @media(max-width:960px){
     .workspace{grid-template-columns:minmax(0,1fr)}
-    .ledger{border-right:none;border-bottom:1px solid var(--line);display:flex;gap:8px;overflow-x:auto;padding:12px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch}
+    .ledger{border-right:none;border-bottom:1px solid var(--line);display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;padding:12px}
     .lg-group{display:contents}
     .lg-group-t,.lg-group-sub{display:none}
-    .lg-item{display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-width:150px;scroll-snap-align:start;grid-template-columns:none;border:1px solid var(--line)}
+    .lg-item{display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-width:0;grid-template-columns:none;border:1px solid var(--line)}
     .lg-idx{display:none}
+    .lg-name{font-size:14px}
     .lg-rooms{margin-top:4px}
     .sheet{padding:26px 20px 34px}
     .grid{grid-template-columns:minmax(0,1fr)}
@@ -262,9 +263,15 @@
     .rail{margin-top:22px}
     .rail-c{padding:12px 14px}
     .rail-c .v{font-size:19px}
-    .perf{padding:18px 15px 16px}
+    .perf{padding:18px 13px 16px}
     .kpi{padding:11px 12px}
     .kpi .kv{font-size:17px}
+    /* 연도별 표: 폰에서 한 화면에 맞춤 — 객실매출·RevPAR 숨김, 여백 축소 */
+    .perf-table table{min-width:0;width:100%}
+    .perf-table th,.perf-table td{padding:8px 5px;font-size:11px;white-space:nowrap}
+    .perf-table td:first-child{font-size:13px}
+    .perf-table th:nth-child(3),.perf-table td:nth-child(3),
+    .perf-table th:nth-child(7),.perf-table td:nth-child(7){display:none}
     .card{padding:17px 16px 6px}
     .row{grid-template-columns:94px minmax(0,1fr);gap:12px}
     .metric-tabs{gap:5px}
