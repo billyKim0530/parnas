@@ -60,7 +60,7 @@
     margin-top:15px;padding-bottom:26px;border-bottom:1px solid var(--line);
   }
   h1{font-weight:900;font-size:clamp(28px,4.4vw,47px);line-height:1.02;letter-spacing:-.03em}
-  h1 em{font-family:var(--disp);font-style:italic;font-weight:400;color:var(--gold);letter-spacing:-.01em}
+  h1 em{font-family:inherit;font-style:normal;font-weight:inherit;color:inherit;letter-spacing:inherit}
   .summary{display:flex;gap:28px;flex-wrap:wrap}
   .stat{display:flex;flex-direction:column;gap:3px;min-width:62px}
   .stat b{font-family:var(--disp);font-weight:500;font-size:32px;line-height:1;letter-spacing:-.02em;color:var(--ink)}
@@ -85,7 +85,7 @@
   .workspace{display:grid;grid-template-columns:322px 1fr}
 
   /* ---------- ledger ---------- */
-  .ledger{border-right:1px solid var(--line);padding:8px;background:linear-gradient(180deg,rgba(212,175,87,.04),transparent 140px)}
+  .ledger{border-right:1px solid var(--line);padding:8px;background:linear-gradient(180deg,rgba(227,166,60,.04),transparent 140px)}
   .lg-group{padding:15px 12px 6px}
   .lg-group-t{display:flex;align-items:baseline;gap:8px}
   .lg-group-t b{font-size:12px;font-weight:700;color:var(--gold);letter-spacing:.02em}
@@ -100,7 +100,7 @@
   .lg-item[aria-current="true"]{background:var(--surface-2);border-color:var(--gold-dim);box-shadow:inset 3px 0 0 var(--gold)}
   .lg-item[aria-current="true"] .lg-idx{color:var(--gold)}
   .lg-item[aria-current="true"] .lg-name{color:var(--ink)}
-  .lg-idx{font-family:var(--disp);font-size:17px;font-weight:500;color:var(--ink-faint);text-align:center}
+  .lg-idx{font-family:var(--disp);font-size:17px;font-weight:700;color:var(--ink-faint);text-align:center}
   .lg-name{font-size:15px;font-weight:700;letter-spacing:-.02em}
   .lg-meta{font-size:12px;color:var(--ink-soft);margin-top:2px;display:block}
   .lg-rooms{font-family:var(--mono);font-size:12px;font-weight:500;color:var(--ink-soft);white-space:nowrap}
@@ -532,19 +532,8 @@ function render(i){
     ${rowH("계약기간",val(a.contractPeriod))}${rowH("수수료율",val(a.commission))}${rowH("최소보장금",val(a.minGuarantee))}${rowH("보증금",val(a.deposit))}
    </div>
    <div class="card wide">
-    <div class="sec-head"><span class="en">Structure</span><span class="ko">운용 구조</span></div>
-    <div class="grid" style="margin-top:0;gap:0 34px">
-     <div>${rowH("자산운용사",val(a.amc))}${rowH("펀드 · PFV",val(a.fund))}</div>
-     <div>${rowH("임대인 · 시행사",val(a.landlord))}${rowH("기타",val(a.etc))}</div>
-    </div>
-   </div>
-   <div class="card">
     <div class="sec-head"><span class="en">Finance</span><span class="ko">투자 · 금융</span></div>
     ${rowH("매입가 (총 투자)",val(a.purchase))}${rowH("Loan (금리)",val(a.loan))}
-   </div>
-   <div class="card">
-    <div class="sec-head"><span class="en">Contact</span><span class="ko">PM · 담당</span></div>
-    ${rowH("PM사 · 담당자",pmVal(a.pm))}
    </div>
   </div>`;
  sheet.classList.remove("sheet-anim");void sheet.offsetWidth;sheet.classList.add("sheet-anim");
