@@ -80,7 +80,7 @@
   .map-addr:focus-within{border-color:var(--brass-line)}
   .map-addr input{width:100%;background:none;border:none;outline:none;color:var(--text);font-family:var(--sans);font-size:14px;padding:10px 0}
   .map-addr .suf{font-size:11px;color:var(--faint);padding-left:8px;white-space:nowrap}
-  .map-frame{border:1px solid var(--line2);border-radius:12px;overflow:hidden;background:var(--surface2);height:360px;position:relative}
+  .map-frame{border:1px solid var(--line2);border-radius:12px;overflow:hidden;background:var(--surface2);height:440px;position:relative}
   .map-split{display:flex;gap:8px;width:100%;height:100%;padding:8px}
   .map-pane{position:relative;flex:1;min-width:0;border-radius:10px;overflow:hidden;background:var(--surface3)}
   .map-pane>div{width:100%;height:100%}
@@ -224,7 +224,7 @@
               </div>
             </div>
             <div class="field"><label>호텔 대지면적</label><div class="in"><input id="a_land" value="3,961.7"><span class="suf" id="suf_land">평</span></div></div>
-            <div class="field"><label>공사비 (<span id="lab_constr_unit">평당</span>)</label><div class="in"><input id="a_constr" value="22,000,000"><span class="suf">원</span></div></div>
+            <div class="field"><label>공사비 (<span id="lab_constr_unit">평당</span>)</label><div class="in"><input id="a_constr" value="18,000,000"><span class="suf">원</span></div></div>
             <div class="field"><label>연면적</label><div class="in"><input id="a_gfa" value="41,980"><span class="suf" id="suf_gfa">평</span></div></div>
             <div class="fdivider"></div>
             <div class="field"><label>대출 비중 (LTV)</label><div class="in"><input id="a_ltv" value="70"><span class="suf">%</span></div></div>
@@ -490,7 +490,20 @@ function initNaverMap(){
   naverMarker=new naver.maps.Marker({map:naverMap,position:c});
   try{ naverPano=new naver.maps.Panorama('naverPano',{position:c,pov:{pan:0,tilt:0,fov:100}}); }catch(e){ naverPano=null; }
   naverReady=true;
+  requestAnimationFrame(refreshMapSizes); setTimeout(refreshMapSizes,300);
 }
+function refreshMapSizes(){
+  if(!naverReady)return;
+  try{
+    if(naverMap) naver.maps.Event.trigger(naverMap,'resize');
+    if(naverPano){
+      const el=document.getElementById('naverPano');
+      if(el&&naverPano.setSize) naverPano.setSize(new naver.maps.Size(el.clientWidth, el.clientHeight));
+      naver.maps.Event.trigger(naverPano,'resize');
+    }
+  }catch(e){}
+}
+window.addEventListener('resize',()=>{ if(naverReady) refreshMapSizes(); });
 function geocodeNaver(addr){
   if(!naverReady||!(naver.maps.Service))return;
   naver.maps.Service.geocode({query:addr},(st,resp)=>{
@@ -507,7 +520,11 @@ function showGoogle(a){
 }
 function updateMap(){
   const a=curAddr();
-  if(naverReady){ $('mapSplit').style.display='flex'; $('mapFrame').style.display='none'; geocodeNaver(a); }
+  if(naverReady){
+    $('mapSplit').style.display='flex'; $('mapFrame').style.display='none';
+    geocodeNaver(a);
+    requestAnimationFrame(refreshMapSizes); setTimeout(refreshMapSizes,250);
+  }
   else showGoogle(a);
   $('mapNote').innerHTML= naverReady
     ? `좌 <b>지도</b> · 우 <b>거리뷰</b> 표시 중 · 현재: <b>${a}</b> (주소 입력 후 Enter로 이동)`
