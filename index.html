@@ -190,7 +190,8 @@
           <div class="adr-lab"><span>객실 평균 판매단가 (ADR)</span><span class="base" id="adrBase"></span></div>
           <div class="adr-box"><input class="adr-input tnum" id="adr" type="text" inputmode="numeric"><span class="adr-unit">원 / 박</span></div>
           <div class="adr-meta">
-            <span>변동 <b id="adrChg" class="tnum">0.0%</b></span>
+            <span>기준 대비 <b id="adrChg" class="tnum">+0.0%</b></span>
+            <span>증감액 <b id="adrChgWon" class="tnum">0원</b></span>
             <span>RevPAR <b id="revpar" class="tnum"></b></span>
             <span>객실수입 <b id="roomRevMini" class="tnum"></b></span>
           </div>
@@ -224,7 +225,7 @@
               </div>
             </div>
             <div class="field"><label>호텔 대지면적</label><div class="in"><input id="a_land" value="3,961.7"><span class="suf" id="suf_land">평</span></div></div>
-            <div class="field"><label>공사비 (<span id="lab_constr_unit">평당</span>)</label><div class="in"><input id="a_constr" value="22,000,000"><span class="suf">원</span></div></div>
+            <div class="field"><label>공사비 (<span id="lab_constr_unit">평당</span>)</label><div class="in"><input id="a_constr" value="18,000,000"><span class="suf">원</span></div></div>
             <div class="field"><label>연면적</label><div class="in"><input id="a_gfa" value="41,980"><span class="suf" id="suf_gfa">평</span></div></div>
             <div class="fdivider"></div>
             <div class="field"><label>대출 비중 (LTV)</label><div class="in"><input id="a_ltv" value="70"><span class="suf">%</span></div></div>
@@ -365,6 +366,9 @@ function renderSim(){
   const adr=num($('adr').value), m=model(adr), A=m.A;
   $('adrChg').textContent=(m.pct>=0?'+':'−')+Math.abs(m.pct*100).toFixed(1)+'%';
   $('adrChg').className='tnum '+(m.pct>=0?'chg-up':'chg-dn');
+  const dWon=Math.round(adr-BASE.adr);
+  $('adrChgWon').textContent=(dWon>=0?'+':'−')+comma(Math.abs(dWon))+'원';
+  $('adrChgWon').className='tnum '+(dWon>=0?'chg-up':'chg-dn');
   $('revpar').textContent=comma(m.revpar);
   $('roomRevMini').textContent=eok(m.rev.room);
   $('scnLbl').textContent='시나리오 ADR '+comma(adr)+'원 · 기준 '+BASE.label;
@@ -378,7 +382,7 @@ function renderSim(){
   const beF=breakeven(A.finTot), beI=breakeven(A.loanInt);
   $('verdictTxt').innerHTML=ok?
     `영업이익이 금융비용을 <b>${eok(gap)}원</b> 초과합니다. 현재 ADR <b>${comma(adr)}원</b>으로 부지매입 금융비용을 충당합니다.`:
-    `영업이익이 금융비용 대비 <b>${eok(Math.abs(gap))}원</b> 부족합니다. 전체 커버 ADR <b>${comma(beF)}원</b> / 대출이자만 커버 <b>${comma(beI)}원</b>.`;
+    `영업이익이 금융비용 대비 <b>${eok(Math.abs(gap))}원</b> 부족합니다. 전체 커버 ADR <b>${comma(beF)}원</b> — 현재보다 <b class="chg-up">+${comma(Math.max(0,beF-adr))}원</b>(<b class="chg-up">+${adr>0?((beF-adr)/adr*100).toFixed(1):'–'}%</b>) 더 올려야 합니다. (대출이자만 커버 <b>${comma(beI)}원</b>)`;
   const scaleMax=Math.max(A.finTot*1.28,m.op*1.08,1);
   $('gauge').className='gauge'+(ok?' ok':'');
   $('gaugeFill').style.width=Math.max(0,Math.min(100,m.op/scaleMax*100))+'%';
