@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>2026년 검토 프로젝트 · 사업개발팀</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.css" />
 <style>
@@ -115,7 +115,58 @@
   td.p{font-weight:700}
   tbody tr:hover{background:#F8F9FC}
   footer{margin-top:24px;font-size:11.5px;color:var(--ink3);font-weight:600;text-align:right}
+  #backdrop{position:fixed;inset:0;background:rgba(17,24,39,.38);opacity:0;pointer-events:none;transition:opacity .25s;z-index:50}
+  #backdrop.show{opacity:1;pointer-events:auto}
+  .sheet-grip{display:none}
+  @media (min-width:641px){#backdrop{display:none}}
   @media (max-width:1000px){.grid{grid-template-columns:1fr}aside{position:static;order:2}.pop{width:min(340px,calc(100vw - 40px))}}
+  @media (max-width:640px){
+    .wrap{padding:16px 12px 36px}
+    header.top{gap:13px;margin-bottom:14px}
+    h1{font-size:23px}
+    .eyebrow{font-size:11px;margin-bottom:3px}
+    .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;width:100%}
+    .kpi{min-width:0;padding:8px 10px;border-radius:11px}
+    .kpi b{font-size:18px}
+    .kpi small{font-size:10px;line-height:1.25;display:block}
+    .grid{gap:11px}
+    .card{border-radius:14px}
+    .card-h{padding:12px 14px 0;font-size:11px}
+    .mapwrap{padding:2px 4px 6px}
+    .maphead{padding:12px 10px 0;gap:6px}
+    .maphead p{font-size:11.5px}
+    .legend{font-size:10.5px;gap:9px}
+    .chips{padding:10px 10px 12px;gap:5px}
+    .chip{padding:7px 12px;font-size:12.5px}
+    .rank{padding:6px 8px 10px}
+    .rank button{padding:8px 6px}
+    .rank .nm{width:56px;font-size:12px}
+    .outside{padding:5px 8px 10px}
+    .outside button{padding:9px 6px}
+    .outside .rg{width:60px;font-size:11.5px}
+    /* 지도: 번호 마커·미검토 구 라벨 숨김 */
+    .cell .pin{display:none}
+    .cell.empty .lbl{display:none}
+    .cell.hov .lift{transform:none}
+    /* 팝업 → 하단 시트 */
+    .pop{position:fixed;left:0;right:0;bottom:0;top:auto;width:100%;max-width:none;
+      border-radius:20px 20px 0 0;border-bottom:0;transform:translateY(102%);opacity:1;
+      transition:transform .3s cubic-bezier(.22,.9,.24,1);max-height:82vh;overflow:auto;
+      box-shadow:0 -12px 40px rgba(17,24,39,.3);z-index:60;
+      padding-bottom:env(safe-area-inset-bottom,0px)}
+    .pop.show{transform:translateY(0)}
+    .sheet-grip{display:block;width:38px;height:4px;border-radius:99px;background:#D8DDE8;margin:8px auto 0}
+    .pop-h{padding:10px 16px 12px}
+    .pop-h h3{font-size:19px}
+    .pop-h button{width:32px;height:32px;font-size:15px}
+    .pop-stats div{padding:9px 16px}
+    .pop-b{max-height:36vh}
+    .row{padding:11px 16px}
+    .row .tt{font-size:14px}
+    details.all summary{padding:13px 14px}
+    th,td{padding:7px 9px;font-size:11.5px}
+    footer{text-align:left;margin-top:18px}
+  }
   @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
@@ -154,6 +205,8 @@
       <div class="pop" id="pop" role="dialog" aria-live="polite"></div>
     </section>
   </div>
+
+  <div id="backdrop"></div>
 
   <details class="all card">
     <summary>전체 프로젝트 41건 표로 보기</summary>
@@ -286,12 +339,7 @@ Object.keys(GEO.gu).forEach(name=>{
   const [sNode,sLift,sBob]=mk("sg"), [mNode,mLift,mBob]=mk("mg");
   sBob.appendChild(el("path",{class:"shape",d:guPath(g),fill:col}));
   const small=g.r<34;
-  const t=el("text",{x:g.lx,y:list.length?g.ly-8:g.ly+4,class:"lbl","font-size":small?10.5:12.5});
-  if(list.length){
-    const a=document.createElementNS(NS,"tspan"); a.textContent=name; t.appendChild(a);
-    const b=document.createElementNS(NS,"tspan"); b.setAttribute("class","cnt");
-    b.textContent=" ("+list.length+"건)"; t.appendChild(b);
-  } else t.textContent=name;
+  const t=el("text",{x:g.lx,class:"lbl"});
   mBob.appendChild(t);
   const per=Math.min(4,list.length), R=8.2, GX=18.8, GY=18.8;
   list.forEach((p,i)=>{
@@ -305,7 +353,7 @@ Object.keys(GEO.gu).forEach(name=>{
     mBob.appendChild(pin);
   });
   gShapes.appendChild(sNode); gMarks.appendChild(mNode);
-  const rec={sNode,mNode,lifts:[sLift,mLift],nodes:[sNode,mNode],g,color:col,list};
+  const rec={sNode,mNode,lifts:[sLift,mLift],nodes:[sNode,mNode],g,color:col,list,label:t,small};
   cells[name]=rec;
   rec.nodes.forEach(n=>{
     n.addEventListener("click",()=>select(name));
@@ -315,8 +363,32 @@ Object.keys(GEO.gu).forEach(name=>{
   });
 });
 
+/* 화면 모드 (모바일: 라벨 축약·마커 숨김·하단 시트) */
+const isMobile=()=>window.innerWidth<=640;
+const tspan=(txt,cls)=>{const n=document.createElementNS(NS,"tspan");if(cls)n.setAttribute("class",cls);n.textContent=txt;return n;};
+function applyMode(){
+  const m=isMobile();
+  Object.keys(cells).forEach(name=>{
+    const c=cells[name], n=c.list.length, t=c.label;
+    while(t.firstChild) t.removeChild(t.firstChild);
+    if(!n){ t.appendChild(tspan(name)); }
+    else{
+      t.appendChild(tspan(name));
+      t.appendChild(tspan(m?" "+n:" ("+n+"건)","cnt"));
+    }
+    t.setAttribute("font-size", m ? (n?15:13) : (c.small?10.5:12.5));
+    t.setAttribute("y", (n && !m) ? c.g.ly-8 : c.g.ly+5);
+  });
+  const hint=document.querySelector(".maphead p");
+  if(hint) hint.textContent = m
+    ? "자치구를 누르면 상세가 열립니다 · 손가락 두 개로 확대"
+    : "자치구 또는 번호를 클릭하면 해당 프로젝트가 열립니다 · 번호는 표의 No.와 동일";
+}
+
 /* 팝업 */
 const pop=document.getElementById("pop"), wrapEl=document.getElementById("mapwrap");
+const backdrop=document.getElementById("backdrop");
+backdrop.addEventListener("click",()=>clearSel());
 const tagCls=r=>r==="Drop"?"t-drop":r==="진행중"?"t-go":r==="지속적 경과확인"?"t-watch":r==="MOU 체결"?"t-mou":"t-none";
 let active=null, filter="전체";
 const match=p=>filter==="전체"||(filter==="미정"?!p.res:p.res===filter);
@@ -337,6 +409,7 @@ function screenPt(x,y){
   return {x:sr.left-r.left+sr.width*x/GEO.w, y:sr.top-r.top+sr.height*y/GEO.h};
 }
 function place(anchor){
+  if(isMobile()){ pop.style.left=""; pop.style.top=""; return; }
   const r=wrapEl.getBoundingClientRect(), w=pop.offsetWidth, h=pop.offsetHeight;
   let top=anchor.y+30; if(top+h>r.height-8) top=Math.max(8,anchor.y-h-30);
   pop.style.left=Math.max(10,Math.min(anchor.x-w/2,r.width-w-10))+"px";
@@ -358,13 +431,13 @@ function showPop(title,sub,color,list,anchor,focusNo){
       '</dl>';
     srcline='<span>인구 26.04 · 세대 22.05 · 아파트 26.05 국토부 실거래가</span>';
   }
-  pop.innerHTML='<div class="pop-h"><span class="sw" style="background:'+color+'"></span>'+
+  pop.innerHTML='<div class="sheet-grip"></div><div class="pop-h"><span class="sw" style="background:'+color+'"></span>'+
     '<div><h3>'+title+'</h3><p>'+sub+'</p></div><button aria-label="닫기" id="popx">✕</button></div>'+
     stats+
     '<div class="pop-b">'+rowsHTML(list)+'</div>'+
     '<div class="pop-f"><span>진행중 '+go+'건</span><span>Drop '+drop+'건</span><span>전체 '+list.length+'건</span>'+srcline+'</div>';
   document.getElementById("popx").onclick=clearSel;
-  pop.classList.add("show"); place(anchor);
+  pop.classList.add("show"); backdrop.classList.add("show"); place(anchor);
   if(focusNo){const r=pop.querySelector('.row[data-no="'+focusNo+'"]');
     if(r){r.classList.add("hl");r.scrollIntoView({block:"nearest"});setTimeout(()=>r.classList.remove("hl"),1600);}}
 }
@@ -381,11 +454,16 @@ function select(name,focusNo){
 function clearSel(){
   if(active){const c=cells[active];c.nodes.forEach(n=>n.classList.remove("on"));c.lifts.forEach(l=>l.style.transform="");
     gShapes.appendChild(c.sNode); gMarks.appendChild(c.mNode);}
-  active=null; pop.classList.remove("show");
+  active=null; pop.classList.remove("show"); backdrop.classList.remove("show");
 }
 svg.addEventListener("click",e=>{if(!e.target.closest(".cell"))clearSel();});
 document.addEventListener("keydown",e=>{if(e.key==="Escape")clearSel();});
-window.addEventListener("resize",()=>{if(active)place(screenPt(cells[active].g.lx,cells[active].g.ly));});
+let lastMode=isMobile();
+window.addEventListener("resize",()=>{
+  if(isMobile()!==lastMode){ lastMode=isMobile(); applyMode(); }
+  if(active) place(screenPt(cells[active].g.lx,cells[active].g.ly));
+});
+applyMode();
 
 /* 필터 */
 const RES=["전체","진행중","지속적 경과확인","MOU 체결","Drop","미정"];
